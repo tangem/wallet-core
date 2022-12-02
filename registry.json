@@ -2088,7 +2088,7 @@
     "chainId": "324",
     "addressHasher": "keccak256",
     "explorer": {
-      "url": "https://explorer.zksync.io/",
+      "url": "https://explorer.zksync.io",
       "txPath": "/tx/",
       "accountPath": "/address/"
     },
