@@ -37,6 +37,14 @@ if (TW_COMPILE_WASM)
     set(WALLET_CORE_BINDGEN ${PREFIX}/wasm32-unknown-emscripten/release/${WALLET_CORE_RS_LIB})
     add_subdirectory(wasm)
 endif ()
+set (CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /opt/homebrew/opt/boost)
+set (CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /opt/homebrew/opt/boost/lib)
+
+set (Boost_NO_BOOST_CMAKE ON)
+set (BOOST_NO_SYSTEM_PATHS ON)
+set (BOOST_ROOT /opt/homebrew/opt/boost)
+set (BOOST_INCLUDEDIR /opt/homebrew/opt/boost/include)
+set (BOOST_LIBRARYDIR /opt/homebrew/opt/boost/lib)
 
 find_host_package(Boost REQUIRED)
 
