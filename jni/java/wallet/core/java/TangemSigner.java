@@ -7,8 +7,8 @@ import wallet.core.jni.CoinType;
 
 public class TangemSigner {
 
-    public static <T extends MessageLite> T signExternally(MessageLite input, CoinType coin, Parser<T> parser, Signer signer) throws Exception {
-        byte[] data = input.toByteArray();
+    public static <T extends MessageLite> T signExternally(MessageLite inputData, CoinType coin, Parser<T> parser, Signer signer) throws Exception {
+        byte[] data = inputData.toByteArray();
         byte[] outputData = nativeSignExternally(signer.getPublicKey().data(), data, coin.value(), signer);
         T output = parser.parseFrom(outputData);
         outputData = null;
