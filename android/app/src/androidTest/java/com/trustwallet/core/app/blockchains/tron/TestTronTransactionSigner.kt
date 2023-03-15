@@ -12,7 +12,6 @@ import org.junit.Assert.assertArrayEquals
 import wallet.core.jni.CoinType.TRON
 import wallet.core.jni.PrivateKey
 import wallet.core.java.PrivateKeySigner
-import wallet.core.java.TangemSigner
 
 class TestTronTransactionSigner {
 
@@ -49,7 +48,7 @@ class TestTronTransactionSigner {
             .setPrivateKey(ByteString.copyFrom("2d8f68944bdbfbc0769542fba8fc2d2a3de67393334471624364c7006da2aa54".toHexByteArray()))
 
         val signer = PrivateKeySigner(PrivateKey(signingInput.privateKey.toByteArray()), TRON)
-        val output = TangemSigner.signExternally(
+        val output = AnySigner.signExternally(
             signingInput.build(),
             TRON,
             Tron.SigningOutput.parser(),
