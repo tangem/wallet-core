@@ -4,6 +4,7 @@ import wallet.core.jni.CoinType;
 import wallet.core.jni.PrivateKey;
 import wallet.core.jni.PublicKey;
 
+// This is used only in TrustWallet auto-tests
 public class PrivateKeySigner implements Signer {
 
     private final PublicKey publicKey;
