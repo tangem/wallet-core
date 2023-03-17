@@ -15,7 +15,6 @@ TWData *_Nonnull signerCallback(jobject signer, TWData *_Nonnull data) {
 
     TWData *ret = TWDataCreateWithJByteArray(env, signResult);
     cachedJVM->DetachCurrentThread();
-    cachedJVM = nullptr;
     return ret;
 }
 
@@ -32,5 +31,6 @@ extern "C" jbyteArray Java_wallet_core_java_AnySigner_nativeSignExternally(JNIEn
     env->DeleteGlobalRef(globalSigner);
     TWDataDelete(inputData);
     TWDataDelete(publicKeyData);
+    cachedJVM = nullptr;
     return resultData;
 }
