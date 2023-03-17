@@ -47,15 +47,20 @@ class TestTronTransactionSigner {
             .setTransaction(transaction)
             .setPrivateKey(ByteString.copyFrom("2d8f68944bdbfbc0769542fba8fc2d2a3de67393334471624364c7006da2aa54".toHexByteArray()))
 
+        val output = AnySigner.sign(signingInput.build(), TRON, Tron.SigningOutput.parser())
+
+        assertEquals(Numeric.toHexString(output.id.toByteArray()), "0x0d644290e3cf554f6219c7747f5287589b6e7e30e1b02793b48ba362da6a5058")
+        assertEquals(Numeric.toHexString(output.signature.toByteArray()), "0xbec790877b3a008640781e3948b070740b1f6023c29ecb3f7b5835433c13fc5835e5cad3bd44360ff2ddad5ed7dc9d7dee6878f90e86a40355b7697f5954b88c01")
+
         val signer = PrivateKeySigner(PrivateKey(signingInput.privateKey.toByteArray()), TRON)
-        val output = AnySigner.signExternally(
+        val outputExternal = AnySigner.signExternally(
             signingInput.build(),
             TRON,
             Tron.SigningOutput.parser(),
             signer
         )
 
-        assertEquals(Numeric.toHexString(output.id.toByteArray()), "0x0d644290e3cf554f6219c7747f5287589b6e7e30e1b02793b48ba362da6a5058")
-        assertEquals(Numeric.toHexString(output.signature.toByteArray()), "0xbec790877b3a008640781e3948b070740b1f6023c29ecb3f7b5835433c13fc5835e5cad3bd44360ff2ddad5ed7dc9d7dee6878f90e86a40355b7697f5954b88c01")
+        assertEquals(Numeric.toHexString(outputExternal.id.toByteArray()), "0x0d644290e3cf554f6219c7747f5287589b6e7e30e1b02793b48ba362da6a5058")
+        assertEquals(Numeric.toHexString(outputExternal.signature.toByteArray()), "0xbec790877b3a008640781e3948b070740b1f6023c29ecb3f7b5835433c13fc5835e5cad3bd44360ff2ddad5ed7dc9d7dee6878f90e86a40355b7697f5954b88c01")
     }
 }
