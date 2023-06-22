@@ -76,12 +76,14 @@ public final class AnySigner {
         
         externalSigner = signer
 
+        // swiftlint:disable force_unwrap
         // It's safe to use "try!" here because the original code just catches exceptions and calls "fatalError"
         let outputData = nativeSignExternally(data: try! input.serializedData(), coin: coin, publicKey: signer.publicKey)
         if let error = signer.error {
             throw error
         }
         return try! SigningOutput(serializedData: outputData)
+        // swiftlint:disable enable_unwrap
     }
 
     /// Signs a transaction by serialized data of a SigningInput and coin type
