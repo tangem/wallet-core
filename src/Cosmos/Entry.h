@@ -19,6 +19,7 @@ public:
     Data addressToData(TWCoinType coin, const std::string& address) const final;
     void sign(TWCoinType coin, const Data& dataIn, Data& dataOut) const override;
     // TANGEM
+    // TODO: Will be move on preImageHashes
     void signExternally(TWCoinType coin, const Data& dataIn, Data& dataOut, const Data& publicKey, const std::function<Data(Data)> externalSigner) const override;
     bool supportsJSONSigning() const final { return true; }
     std::string signJSON(TWCoinType coin, const std::string& json, const Data& key) const override;

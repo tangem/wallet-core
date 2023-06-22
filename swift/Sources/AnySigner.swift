@@ -77,10 +77,12 @@ public final class AnySigner {
         externalSigner = signer
 
         // It's safe to use "try!" here because the original code just catches exceptions and calls "fatalError"
+        // swiftlint:disable:next force_try
         let outputData = nativeSignExternally(data: try! input.serializedData(), coin: coin, publicKey: signer.publicKey)
         if let error = signer.error {
             throw error
         }
+        // swiftlint:disable:next force_try
         return try! SigningOutput(serializedData: outputData)
     }
 

@@ -22,7 +22,7 @@ class Signer {
     /// Signs the given transaction.
     static Proto::SigningOutput sign(const Proto::SigningInput& input) noexcept;
     // TANGEM
-    static Proto::SigningOutput sign(const Proto::SigningInput& input, const std::function<Data(Data)> externalSigner = {}) noexcept;
+    static Proto::SigningOutput sign(const Proto::SigningInput& input, const Data& publicKey, const std::function<Data(Data)> externalSigner) noexcept;
 
     Proto::SigningOutput compile(const Data& signature) const;
     Data signaturePreimage() const;

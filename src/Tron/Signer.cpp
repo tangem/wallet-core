@@ -413,12 +413,11 @@ Proto::SigningOutput signDirect(const Proto::SigningInput& input) {
     return output;
 }
 
-// Proto::SigningOutput Signer::sign(const Proto::SigningInput& input, const Data& publicKey, const std::function<Data(Data)> externalSigner) noexcept {
-//     auto output = Proto::SigningOutput();
-//     auto tx = buildTransaction(input);
-// }
+Proto::SigningOutput Signer::sign(const Proto::SigningInput& input) noexcept {
+   return sign(input, Data(), {});
+}
 
-Proto::SigningOutput Signer::sign(const Proto::SigningInput& input, const std::function<Data(Data)> externalSigner) noexcept {
+Proto::SigningOutput Signer::sign(const Proto::SigningInput& input, const Data& publicKey, const std::function<Data(Data)> externalSigner) noexcept {
     if (!input.txid().empty()) {
         return signDirect(input);
     }
