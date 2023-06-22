@@ -167,6 +167,10 @@ message SigningInput {
     // In case of Plan only, keys should be present, in correct number
     repeated bytes private_key = 2;
 
+    // TANGEM
+    // Available public keys (double extended keys); every input UTXO address should be covered
+    repeated bytes public_key = 10;
+
     // Later this can be made oneof if more message types are supported
     Transfer transfer_message = 3;
 
@@ -199,4 +203,31 @@ message SigningOutput {
 
     // Optional error
     Common.Proto.SigningError error = 3;
+    
+    /// TANGEM
+    /// error description
+    string error_message = 4;
+}
+
+/// TANGEM
+/// Pre-image hash to be used for signing
+message TxPublicKey {
+    /// Pre-image tx id that will be used for signing
+    bytes tx_id = 1;
+
+    /// public key hash used for signing
+    bytes public_key_hash = 2;
+}
+
+/// TANGEM
+/// Transaction pre-signing output
+message PreSigningOutput {
+    // Key which will be used for signing
+    repeated TxPublicKey public_keys = 1;
+
+    /// error code, 0 is ok, other codes will be treated as errors
+    Common.Proto.SigningError error = 2;
+
+    /// error description
+    string error_message = 3;
 }

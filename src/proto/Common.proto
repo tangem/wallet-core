@@ -21,6 +21,9 @@ enum SigningError {
     Error_zero_amount_requested = 4;
     // One required key is missing (too few or wrong keys are provided)
     Error_missing_private_key = 5;
+    /// TANGEM
+    // One required key is missing (too few or wrong keys are provided)
+    Error_missing_public_key = 24;
     // A private key provided is invalid (e.g. wrong size, usually should be 32 bytes)
     Error_invalid_private_key = 15;
     // A provided address (e.g. destination address) is invalid

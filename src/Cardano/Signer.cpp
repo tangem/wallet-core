@@ -10,12 +10,14 @@
 #include "Cbor.h"
 #include "HexCoding.h"
 #include "PrivateKey.h"
+#include "Globals.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <future>
 
 namespace TW::Cardano {
 
@@ -33,6 +35,19 @@ Proto::SigningOutput Signer::sign() {
     }
 
     return signWithPlan();
+}
+
+// TANGEM
+Proto::SigningOutput Signer::sign(std::optional<SignaturePubkeyList> optionalExternalSigs) {
+    // plan if needed
+    if (input.has_plan()) {
+        _plan = TransactionPlan::fromProto(input.plan());
+    } else {
+        // no plan supplied, plan it
+        _plan = doPlan();
+    }
+
+    return signWithPlan(optionalExternalSigs);
 }
 
 Common::Proto::SigningError Signer::buildTransactionAux(Transaction& tx, const Proto::SigningInput& input, const TransactionPlan& plan) {
@@ -101,6 +116,20 @@ Data deriveStakingPrivateKey(const Data& privateKeyData) {
 
 Common::Proto::SigningError Signer::assembleSignatures(std::vector<std::pair<Data, Data>>& signatures, const Proto::SigningInput& input, const TransactionPlan& plan, const Data& txId, bool sizeEstimationOnly) {
     signatures.clear();
+
+    if (!sizeEstimationOnly) {
+        // Now we support only one publicKey
+        // That will be improved for pair [address: hash]
+        if (Globals::externalSignerFunction && !Globals::publicKeyData.empty()) {
+            const auto publicKeyBytes = Globals::publicKeyData;
+            std::future<Data> signedDataFuture = std::async(Globals::externalSignerFunction, txId);
+            const auto signature = signedDataFuture.get();
+            // public key (first 32 bytes) and signature (64 bytes)
+            signatures.emplace_back(subData(publicKeyBytes, 0, 32), signature);
+            return Common::Proto::OK;
+        }
+    }
+
     // Private keys and corresponding addresses
     std::map<std::string, Data> privateKeys;
     for (auto i = 0; i < input.private_key_size(); ++i) {
@@ -175,6 +204,106 @@ Common::Proto::SigningError Signer::assembleSignatures(std::vector<std::pair<Dat
     return Common::Proto::OK;
 }
 
+/// TANGEM
+Proto::PreSigningOutput Signer::preImageHashes(const Proto::SigningInput& input) noexcept {
+    Proto::PreSigningOutput output;
+
+    if (!input.has_plan()) {
+        output.set_error(TW::Common::Proto::SigningError::Error_input_parse);
+        output.set_error_message("Input has not plan");
+        return output;   
+    }
+
+    TransactionPlan plan = TransactionPlan::fromProto(input.plan());  
+    Transaction txAux;
+
+    const auto buildRet = buildTransactionAux(txAux, input, plan);
+    if (buildRet != Common::Proto::OK) {
+        output.set_error(buildRet);
+        output.set_error_message(Common::Proto::SigningError_Name(buildRet));
+        return output;
+    }
+
+    Data txId = txAux.getId();
+
+    std::vector<Data> publicKeys;
+    auto result = collectPublicKeys(publicKeys, input, plan);
+    
+    if (result != Common::Proto::OK) {
+        output.set_error(result);
+        output.set_error_message(Common::Proto::SigningError_Name(result));
+        return output;   
+    }
+
+    auto* mutablePubKeys = output.mutable_public_keys();    
+    for (auto& pk : publicKeys) {
+        auto* pubKeys = mutablePubKeys->Add();
+        pubKeys->set_tx_id(txId.data(), txId.size());
+        pubKeys->set_public_key_hash(pk.data(), pk.size());
+    }
+
+    return output;
+}
+
+/// TANGEM
+Common::Proto::SigningError Signer::collectPublicKeys(std::vector<Data>& publicKeys, const Proto::SigningInput& input, const TransactionPlan& plan) {
+    std::map<std::string, Data> pubKeys;
+
+    // Public keys and corresponding addresses
+    for (auto i = 0; i < input.public_key_size(); ++i) {
+        const auto publicKeyData = data(input.public_key(i));
+
+        // Add this public key and associated address
+        auto publicKey = PublicKey(publicKeyData, TWPublicKeyTypeED25519Cardano);
+        const auto address = AddressV3(publicKey);
+        pubKeys[address.string()] = publicKeyData;
+    }
+
+    std::vector<std::string> addresses;
+    for (auto& u : plan.utxos) {
+        if (!AddressV3::isValid(u.address)) {
+            return Common::Proto::Error_invalid_address;
+        }
+        addresses.emplace_back(u.address);
+    }
+    // Staking key is also an address that needs signature
+    if (input.has_register_staking_key()) {
+        addresses.emplace_back(input.register_staking_key().staking_address());
+    }
+    if (input.has_deregister_staking_key()) {
+        addresses.emplace_back(input.deregister_staking_key().staking_address());
+    }
+    if (input.has_delegate()) {
+        addresses.emplace_back(input.delegate().staking_address());
+    }
+    if (input.has_withdraw()) {
+        addresses.emplace_back(input.withdraw().staking_address());
+    }
+
+    // discard duplicates (std::set, std::copy_if, std::unique does not work well here)
+    std::vector<std::string> addressesUnique;
+    for (auto& a: addresses) {
+        if (find(addressesUnique.begin(), addressesUnique.end(), a) == addressesUnique.end()) {
+            addressesUnique.emplace_back(a);
+        }
+    }
+    
+    // collect preImageHashes for each address
+    for (auto& a : addressesUnique) {
+        const auto pubKeyFind = pubKeys.find(a);
+        Data pubicKeyData;
+        if (pubKeyFind != pubKeys.end()) {
+            pubicKeyData = pubKeyFind->second;
+        } else {
+            return Common::Proto::Error_missing_public_key;
+        }
+
+        publicKeys.emplace_back(pubicKeyData);
+    }
+
+    return Common::Proto::OK;
+}
+
 Cbor::Encode cborizeSignatures(const std::vector<std::pair<Data, Data>>& signatures) {
     // signatures as Cbor
     // clang-format off
@@ -206,7 +335,7 @@ Proto::SigningOutput Signer::signWithPlan() const {
 
     Data encoded;
     Data txId;
-    const auto buildRet = encodeTransaction(encoded, txId, input, _plan);
+    const auto buildRet = encodeTransaction(encoded, txId, input, _plan, false, {});
     if (buildRet != Common::Proto::OK) {
         ret.set_error(buildRet);
         return ret;
@@ -219,7 +348,31 @@ Proto::SigningOutput Signer::signWithPlan() const {
     return ret;
 }
 
-Common::Proto::SigningError Signer::encodeTransaction(Data& encoded, Data& txId, const Proto::SigningInput& input, const TransactionPlan& plan, bool sizeEstimationOnly) {
+// TANGEM
+Proto::SigningOutput Signer::signWithPlan(std::optional<SignaturePubkeyList> optionalExternalSigs) const {
+    auto ret = Proto::SigningOutput();
+    if (_plan.error != Common::Proto::OK) {
+        // plan has error
+        ret.set_error(_plan.error);
+        return ret;
+    }
+
+    Data encoded;
+    Data txId;
+    const auto buildRet = encodeTransaction(encoded, txId, input, _plan, false, optionalExternalSigs);
+    if (buildRet != Common::Proto::OK) {
+        ret.set_error(buildRet);
+        return ret;
+    }
+
+    ret.set_encoded(std::string(encoded.begin(), encoded.end()));
+    ret.set_tx_id(std::string(txId.begin(), txId.end()));
+    ret.set_error(Common::Proto::OK);
+
+    return ret;
+}
+
+Common::Proto::SigningError Signer::encodeTransaction(Data& encoded, Data& txId, const Proto::SigningInput& input, const TransactionPlan& plan, bool sizeEstimationOnly, std::optional<SignaturePubkeyList> optionalExternalSigs) {
     if (plan.error != Common::Proto::OK) {
         return plan.error;
     }
@@ -232,10 +385,27 @@ Common::Proto::SigningError Signer::encodeTransaction(Data& encoded, Data& txId,
     txId = txAux.getId();
 
     std::vector<std::pair<Data, Data>> signatures;
-    const auto sigError = assembleSignatures(signatures, input, plan, txId, sizeEstimationOnly);
-    if (sigError != Common::Proto::OK) {
-        return sigError;
+
+    /// TANGEM
+    // If we have external signatures
+    if (optionalExternalSigs.has_value()) {
+        for (auto i = 0; i < optionalExternalSigs.value().size(); ++i) {
+            auto signature = optionalExternalSigs.value()[i].first;
+            auto publicKeyData = optionalExternalSigs.value()[i].second;
+
+            auto publicKey = PublicKey(publicKeyData, TWPublicKeyTypeED25519Cardano);
+            if (!publicKey.verify(signature, txId)) {
+                return Common::Proto::Error_signing;
+            }
+            signatures.emplace_back(subData(publicKeyData, 0, 32), signature);
+        }
+    } else {
+        const auto sigError = assembleSignatures(signatures, input, plan, txId, sizeEstimationOnly);
+        if (sigError != Common::Proto::OK) {
+            return sigError;
+        }   
     }
+
     const auto sigsCbor = cborizeSignatures(signatures);
 
     // Cbor-encode txAux & signatures

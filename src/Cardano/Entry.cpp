@@ -33,4 +33,39 @@ void Entry::plan([[maybe_unused]] TWCoinType coin, const Data& dataIn, Data& dat
     planTemplate<Signer, Proto::SigningInput>(dataIn, dataOut);
 }
 
+/// TANGEM
+Data Entry::preImageHashes([[maybe_unused]] TWCoinType coin, const Data& txInputData) const {
+    return txCompilerTemplate<Proto::SigningInput, Proto::PreSigningOutput>(
+        txInputData, [](auto&& input, auto&& output) { output = Signer::preImageHashes(input); });
+}
+/// TANGEM
+void Entry::compile([[maybe_unused]] TWCoinType coin, const Data& txInputData, const std::vector<Data>& signatures,
+                    const std::vector<PublicKey>& publicKeys, Data& dataOut) const {
+    auto txCompilerFunctor = [&signatures, &publicKeys](auto&& input, auto&& output) noexcept {
+        if (signatures.empty() || publicKeys.empty()) {
+            output.set_error(Common::Proto::Error_invalid_params);
+            output.set_error_message("empty signatures or publickeys");
+            return;
+        }
+
+        if (signatures.size() != publicKeys.size()) {
+            output.set_error(Common::Proto::Error_invalid_params);
+            output.set_error_message("signatures size and publickeys size not equal");
+            return;
+        }
+
+        HashPubkeyList externalSignatures;
+        auto insertFunctor = [](auto&& signature, auto&& pubkey) noexcept {
+            return std::make_pair(signature, pubkey.bytes);
+        };
+        transform(begin(signatures), end(signatures), begin(publicKeys),
+                  back_inserter(externalSignatures), insertFunctor);
+
+        output = Signer::sign(input, externalSignatures);
+    };
+
+    dataOut = txCompilerTemplate<Proto::SigningInput, Proto::SigningOutput>(txInputData,
+                                                                            txCompilerFunctor);
+}
+
 } // namespace TW::Cardano
