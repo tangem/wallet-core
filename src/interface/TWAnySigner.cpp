@@ -5,7 +5,6 @@
 // file LICENSE at the root of the source code distribution tree.
 
 #include <TrustWalletCore/TWAnySigner.h>
-#include <TrustWalletCore/TWAnySignerTangem.h>
 
 #include "Coin.h"
 
