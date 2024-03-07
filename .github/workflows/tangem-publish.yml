@@ -3,16 +3,20 @@ name: Tangem - Publish
 on:
   push:
     branches:
-      - 'temp/IOS-6122_build_scripts' # temporary value
+      - 'master'
+      - 'feature/IOS-6122_build_scripts' # temporary value
   workflow_dispatch:
 
 env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DVELOPMENT_ANDROID }}
 
 jobs:
-  create_tag:
-    name: Create tag
-    runs-on: macos-latest
+  create_tag_and_release:
+    name: Create tag and release
+    runs-on: macos-13
+    concurrency:
+      group: ${{ github.ref }}_create_tag_and_release
+      cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,42 +32,61 @@ jobs:
       - name: Echo version.properties
         run: echo ${{ steps.version.outputs.tangem }}
 
-      - name: Create tag
-        uses: actions/github-script@v3
-        if: False # temporarily disabled
+      - name: Create tag and release
+        uses: softprops/action-gh-release@v1
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/${{ steps.version.outputs.tangem }}",
-              sha: context.sha
-            })
+          name: ${{ steps.version.outputs.tangem }}
+          tag_name: ${{ steps.version.outputs.tangem }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+
     outputs:
       publish_version: ${{ steps.version.outputs.tangem }}
 
   publish_ios:
     name: Publish iOS
-    runs-on: macos-latest
-    needs: create_tag
+    runs-on: macos-13
+    concurrency:
+      group: ${{ github.ref }}_publish_ios
+      cancel-in-progress: true
+    needs: create_tag_and_release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
 
-      - name: Echo version.properties
-        run: echo ${{ needs.create_tag.outputs.publish_version }}
+      - name: Install dependencies
+        uses: ./.github/actions/install_dependencies_composite_action
+
+      - name: Generate files
+        run: tools/generate-files ios
+
+      - name: Build XCFramework
+        run: tools/ios-xcframework
+
+      - name: Release XCFramework
+        env:
+          GITHUB_USER: ${{ secrets.GITHUB_ACTOR }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: tools/ios-xcframework-release
 
   publish_android:
     name: Publish Android
-    runs-on: macos-latest
-    needs: create_tag
-    if: False # temporarily disabled
+    runs-on: macos-13
+    concurrency:
+      group: ${{ github.ref }}_publish_android
+      cancel-in-progress: true
+    needs: create_tag_and_release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: set up JDK 17
+      - name: Install dependencies
+        uses: ./.github/actions/install_dependencies_composite_action
+
+      - name: Setup JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
@@ -72,42 +95,18 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Install system dependencies
-        run: |
-          tools/install-sys-dependencies-mac
-
       - name: Install Android Dependencies
         run: tools/install-android-dependencies
-
-      - name: Cache Rust
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            rust
-
-      - name: Install Rust dependencies
-        run: |
-          tools/install-rust-dependencies
-
-      - name: Cache internal dependencies
-        id: internal_cache
-        uses: actions/cache@v3
-        with:
-          path: build/local
-          key: ${{ runner.os }}-${{ runner.arch }}-internal-${{ hashFiles('tools/install-dependencies') }}
-
-      - name: Install internal dependencies
-        run: tools/install-dependencies
-        if: steps.internal_cache.outputs.cache-hit != 'true'
 
       - name: Generate files
         run: tools/generate-files android
 
       - name: Build and publish Android
+        if: false # temporarily disabled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
         run: |
           cd android/
           echo sdk.dir = $ANDROID_HOME > local.properties
-          GITHUB_USER=${{ secrets.GITHUB_ACTOR }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./gradlew build assembleRelease publish -Pversion=${{ needs.create_tag.outputs.publish_version }}
+          GITHUB_USER=${{ secrets.GITHUB_ACTOR }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./gradlew build assembleRelease publish -Pversion=${{ needs.create_tag_and_release.outputs.publish_version }}
