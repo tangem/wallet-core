@@ -60,3 +60,9 @@ public:
 };
 
 } // namespace TW::TheOpenNetwork
+
+// TANGEM
+/// Wrapper for C interface.
+struct TWTheOpenNetworkAddress {
+    TW::TheOpenNetwork::Address impl;
+};
