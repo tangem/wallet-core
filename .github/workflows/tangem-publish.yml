@@ -68,14 +68,24 @@ jobs:
       - name: Build XCFramework
         run: tools/ios-xcframework
 
-      - name: Release XCFramework
+      - name: Prepare binaries (WalletCore and SwiftProtobuf)
+        run: tools/ios-xcframework-prepare
+
+        # TODO: create a new release in target repo too
+      - name: Update swift-protobuf-binaries repo
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
-          GITHUB_USER: ${{ secrets.GITHUB_ACTOR }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: tools/ios-xcframework-release
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          source-directory: 'output'
+          destination-github-username: 'tangem'
+          destination-repository-name: 'swift-protobuf-binaries'
+          target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+
 
   publish_android:
     name: Publish Android
+    if: false # temporarily disable
     runs-on: macos-13
     concurrency:
       group: ${{ github.ref }}_publish_android
