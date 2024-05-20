@@ -65,29 +65,29 @@ jobs:
           name: wallet-core-binaries-ios
           path: output/WalletCore.xcframework/
 
-    upload_binaries_ios:
-      name: Upload binaries iOS
-      runs-on: ubuntu-latest
-      concurrency:
-        group: ${{ github.ref }}_publish_ios
-        cancel-in-progress: true
-      needs: publish_ios
-      steps:
-        - name: Download dummy artefacts
-          uses: actions/download-artifact@master
-          with:
-            name: wallet-core-binaries-ios
-            path: output/WalletCore.xcframework/
+  upload_binaries_ios:
+    name: Upload binaries iOS
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}_publish_ios
+      cancel-in-progress: true
+    needs: publish_ios
+    steps:
+      - name: Download dummy artefacts
+        uses: actions/download-artifact@master
+        with:
+          name: wallet-core-binaries-ios
+          path: output/WalletCore.xcframework/
 
-        - name: Update swift-protobuf-binaries repo
-          uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
-          env:
-            API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            source-directory: 'output'
-            destination-github-username: 'tangem'
-            destination-repository-name: 'swift-protobuf-binaries'
-            target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+      - name: Update swift-protobuf-binaries repo
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          source-directory: 'output'
+          destination-github-username: 'tangem'
+          destination-repository-name: 'swift-protobuf-binaries'
+          target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
 
 
 
