@@ -5,6 +5,7 @@ on:
     branches:
       - 'master'
       - 'feature/IOS-6122_build_scripts' # TODO: remove
+      - 'test/IOS-6122_build_scripts' # TODO: remove
   workflow_dispatch:
 
 env:
@@ -33,6 +34,7 @@ jobs:
         run: echo ${{ steps.version.outputs.tangem }}
 
       - name: Create tag and release
+        if: false # temporarily disable
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ steps.version.outputs.tangem }}
