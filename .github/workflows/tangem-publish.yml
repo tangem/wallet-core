@@ -86,8 +86,8 @@ jobs:
         with:
           source-directory: 'output'
           destination-github-username: 'tangem'
-          destination-repository-name: 'wallet-core-binaries-ios'
-          # destination-repository-name: 'swift-protobuf-binaries'
+          # destination-repository-name: 'wallet-core-binaries-ios'
+          destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
 
 
