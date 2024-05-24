@@ -86,7 +86,8 @@ jobs:
           SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
         with:
           source-directory: 'output'
-          destination-github-username: 'Tangem artefacts'
+          # destination-github-username: 'Tangem artefacts'
+          destination-github-username: 'tangem'
           destination-repository-name: 'wallet-core-binaries-ios'
           # destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
