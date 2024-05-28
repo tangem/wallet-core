@@ -69,7 +69,6 @@ jobs:
         run: tools/ios-xcframework
 
       - name: Prepare artefacts
-        if: false # temporarily disabled
         run: |
           mkdir -p output/artefacts/wallet-core
           mkdir -p output/artefacts/swift-protobuf
@@ -80,11 +79,17 @@ jobs:
         if: false # temporarily disabled
         run: tools/ios-xcframework-prepare
 
-      - name: Upload artefacts
+      - name: Upload WalletCore artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: binary-artefacts
-          path: output/*.xcframework
+          name: wallet-core-binary-artefacts
+          path: output/artefacts/wallet-core/
+
+      - name: Upload SwiftProtobuf artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-protobuf-binary-artefacts
+          path: output/artefacts/swift-protobuf/
 
       # TODO: Upload dSYMs
 
@@ -96,18 +101,24 @@ jobs:
       cancel-in-progress: true
     needs: publish_ios
     steps:
-      - name: Download artefacts
+      - name: Download WalletCore artefacts
         uses: actions/download-artifact@master
         with:
-          name: binary-artefacts
-          path: output
+          name: wallet-core-binary-artefacts
+          path: output/artefacts/wallet-core/
+
+      - name: Download SwiftProtobuf artefacts
+        uses: actions/download-artifact@master
+        with:
+          name: swift-protobuf-binary-artefacts
+          path: output/artefacts/swift-protobuf/
 
       - name: Update wallet-core-binaries-ios repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output/WalletCore.xcframework'
+          source-directory: 'output/artefacts/wallet-core/'
           destination-github-username: 'tangem'
           destination-repository-name: 'wallet-core-binaries-ios'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
@@ -117,7 +128,7 @@ jobs:
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output/SwiftProtobuf.xcframework'
+          source-directory: 'output/artefacts/swift-protobuf/'
           destination-github-username: 'tangem'
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
