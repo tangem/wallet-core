@@ -71,11 +71,10 @@ jobs:
       - name: Prepare artefacts
         run: |
           ls -ltrah swift/build/
-          ls -ltrah output/
           mkdir -p output/artefacts/wallet-core
           mkdir -p output/artefacts/swift-protobuf
-          mv swift/build/WalletCore* output/artefacts/wallet-core/
-          mv swift/build/SwiftProtobuf* output/artefacts/swift-protobuf/
+          mv swift/build/WalletCore.xcframework output/artefacts/wallet-core/
+          mv swift/build/SwiftProtobuf.xcframework output/artefacts/swift-protobuf/
         shell: zsh {0}
 
       - name: Prepare binaries (WalletCore and SwiftProtobuf)
