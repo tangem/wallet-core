@@ -58,19 +58,6 @@ jobs:
       cancel-in-progress: true
     needs: create_tag_and_release
     steps:
-      - name: Check out binaries repo (test)
-        uses: actions/checkout@v4
-        with:
-          path: repos/tangem/wallet-core-binaries-ios
-          repository: tangem/wallet-core-binaries-ios
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare binaries repo (test)
-        run: |
-          ls -ltrah repos/tangem/wallet-core-binaries-ios/
-          rm -rf repos/tangem/wallet-core-binaries-ios/WalletCore.xcframework
-          ls -ltrah repos/tangem/wallet-core-binaries-ios/
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -100,13 +87,13 @@ jobs:
       - name: Upload WalletCore artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: wallet-core-binary-artefacts
+          name: wallet-core-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/wallet-core/
 
       - name: Upload SwiftProtobuf artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: swift-protobuf-binary-artefacts
+          name: swift-protobuf-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/swift-protobuf/
 
       # TODO: Upload dSYMs
@@ -122,31 +109,55 @@ jobs:
       - name: Download WalletCore artefacts
         uses: actions/download-artifact@master
         with:
-          name: wallet-core-binary-artefacts
+          name: wallet-core-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/wallet-core/
 
-      - name: Download SwiftProtobuf artefacts
-        uses: actions/download-artifact@master
+      - name: Check out wallet-core-binaries-ios repo
+        uses: actions/checkout@v4
         with:
-          name: swift-protobuf-binary-artefacts
-          path: output/artefacts/swift-protobuf/
+          path: output/repos/wallet-core-binaries-ios
+          repository: tangem/wallet-core-binaries-ios
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make changes to wallet-core-binaries-ios repo
+        run: |
+          rm -rf output/repos/wallet-core-binaries-ios/WalletCore.xcframework
+          mv output/artefacts/wallet-core/* output/repos/wallet-core-binaries-ios/
 
       - name: Update wallet-core-binaries-ios repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output/artefacts/wallet-core/'
+          source-directory: 'output/repos/wallet-core-binaries-ios'
           destination-github-username: 'tangem'
           destination-repository-name: 'wallet-core-binaries-ios'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+
+      - name: Download SwiftProtobuf artefacts
+        uses: actions/download-artifact@master
+        with:
+          name: swift-protobuf-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
+          path: output/artefacts/swift-protobuf/
+
+      - name: Check out swift-protobuf-binaries repo
+        uses: actions/checkout@v4
+        with:
+          path: output/repos/swift-protobuf-binaries
+          repository: tangem/swift-protobuf-binaries
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make changes to swift-protobuf-binaries repo
+        run: |
+          rm -rf output/repos/swift-protobuf-binaries/SwiftProtobuf.xcframework
+          mv output/artefacts/swift-protobuf/* output/repos/swift-protobuf-binaries/
 
       - name: Update swift-protobuf-binaries repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output/artefacts/swift-protobuf/'
+          source-directory: 'output/repos/swift-protobuf-binaries/'
           destination-github-username: 'tangem'
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
