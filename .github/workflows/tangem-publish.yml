@@ -94,6 +94,7 @@ jobs:
 
       # TODO: Upload dSYMs
 
+  # TODO: split wc and spb jobs
   upload_binaries_ios:
     name: Upload binaries iOS
     runs-on: ubuntu-latest
@@ -117,8 +118,14 @@ jobs:
 
       - name: Make changes to wallet-core-binaries-ios repo
         run: |
+          ls -ltrah output/repos/wallet-core-binaries-ios/
+          ls -ltrah output/artefacts/wallet-core/
           rm -rf output/repos/wallet-core-binaries-ios/WalletCore.xcframework
+          ls -ltrah output/repos/wallet-core-binaries-ios/
+          ls -ltrah output/artefacts/wallet-core/
           mv output/artefacts/wallet-core/* output/repos/wallet-core-binaries-ios/
+          ls -ltrah output/repos/wallet-core-binaries-ios/
+          ls -ltrah output/artefacts/wallet-core/
 
       - name: Update wallet-core-binaries-ios repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
@@ -145,8 +152,14 @@ jobs:
 
       - name: Make changes to swift-protobuf-binaries repo
         run: |
+          ls -ltrah output/repos/swift-protobuf-binaries/
+          ls -ltrah output/artefacts/swift-protobuf/
           rm -rf output/repos/swift-protobuf-binaries/SwiftProtobuf.xcframework
+          ls -ltrah output/repos/swift-protobuf-binaries/
+          ls -ltrah output/artefacts/swift-protobuf/
           mv output/artefacts/swift-protobuf/* output/repos/swift-protobuf-binaries/
+          ls -ltrah output/repos/swift-protobuf-binaries/
+          ls -ltrah output/artefacts/swift-protobuf/
 
       - name: Update swift-protobuf-binaries repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
