@@ -22,7 +22,7 @@ jobs:
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd  # v1.6.0
         with:
-          xcode-version: '15.3'
+          xcode-version: '15.4'
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -126,33 +126,16 @@ jobs:
           name: swift-protobuf-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/swift-protobuf/
 
-      - name: Check out swift-protobuf-binaries repo
-        uses: actions/checkout@v4
-        with:
-          path: output/repos/swift-protobuf-binaries
-          repository: tangem/swift-protobuf-binaries
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Make changes to swift-protobuf-binaries repo
-        run: |
-          ls -ltrah output/repos/swift-protobuf-binaries/
-          ls -ltrah output/artefacts/swift-protobuf/
-          rm -rf output/repos/swift-protobuf-binaries/SwiftProtobuf.xcframework
-          ls -ltrah output/repos/swift-protobuf-binaries/
-          ls -ltrah output/artefacts/swift-protobuf/
-          mv output/artefacts/swift-protobuf/* output/repos/swift-protobuf-binaries/
-          ls -ltrah output/repos/swift-protobuf-binaries/
-          ls -ltrah output/artefacts/swift-protobuf/
-
       - name: Update swift-protobuf-binaries repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output/repos/swift-protobuf-binaries/'
+          source-directory: 'output/artefacts/wallet-core/SwiftProtobuf.xcframework'
           destination-github-username: 'tangem'
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+          target-directory: 'SwiftProtobuf.xcframework'
 
   publish_android:
     name: Publish Android
