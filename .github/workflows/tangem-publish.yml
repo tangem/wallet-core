@@ -80,20 +80,16 @@ jobs:
           mv swift/build/WalletCore.xcframework output/artefacts/wallet-core/
           mv swift/build/SwiftProtobuf.xcframework output/artefacts/swift-protobuf/
 
-      - name: Prepare binaries (WalletCore and SwiftProtobuf)
-        if: false # temporarily disabled
-        run: tools/ios-xcframework-prepare
-
       - name: Upload WalletCore artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: wallet-core-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
+          name: wallet-core-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/wallet-core/
 
       - name: Upload SwiftProtobuf artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: swift-protobuf-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
+          name: swift-protobuf-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/swift-protobuf/
 
       # TODO: Upload dSYMs
@@ -109,7 +105,7 @@ jobs:
       - name: Download WalletCore artefacts
         uses: actions/download-artifact@master
         with:
-          name: wallet-core-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
+          name: wallet-core-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/wallet-core/
 
       - name: Check out wallet-core-binaries-ios repo
@@ -137,7 +133,7 @@ jobs:
       - name: Download SwiftProtobuf artefacts
         uses: actions/download-artifact@master
         with:
-          name: swift-protobuf-binary-artefacts_${{ github.ref }}  # TODO: Use SHA of the artefact instead
+          name: swift-protobuf-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
           path: output/artefacts/swift-protobuf/
 
       - name: Check out swift-protobuf-binaries repo
