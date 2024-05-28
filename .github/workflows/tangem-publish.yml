@@ -53,6 +53,19 @@ jobs:
       cancel-in-progress: true
     needs: create_tag_and_release
     steps:
+      - name: Check out binaries repo (test)
+        uses: actions/checkout@v4
+        with:
+          path: repos/tangem/wallet-core-binaries-ios
+          repository: tangem/wallet-core-binaries-ios
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare binaries repo (test)
+        run: |
+          ls -ltrah repos/tangem/wallet-core-binaries-ios/
+          rm -rf repos/tangem/wallet-core-binaries-ios/WalletCore.xcframework
+          ls -ltrah repos/tangem/wallet-core-binaries-ios/
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -74,7 +87,6 @@ jobs:
           mkdir -p output/artefacts/swift-protobuf
           mv swift/build/WalletCore.xcframework output/artefacts/wallet-core/
           mv swift/build/SwiftProtobuf.xcframework output/artefacts/swift-protobuf/
-        shell: zsh {0}
 
       - name: Prepare binaries (WalletCore and SwiftProtobuf)
         if: false # temporarily disabled
