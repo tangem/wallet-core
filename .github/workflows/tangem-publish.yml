@@ -70,10 +70,12 @@ jobs:
 
       - name: Prepare artefacts
         run: |
+          ls -ltrah output/
           mkdir -p output/artefacts/wallet-core
           mkdir -p output/artefacts/swift-protobuf
           mv output/WalletCore* output/artefacts/wallet-core/
           mv output/SwiftProtobuf* output/artefacts/swift-protobuf/
+        shell: zsh {0}
 
       - name: Prepare binaries (WalletCore and SwiftProtobuf)
         if: false # temporarily disabled
