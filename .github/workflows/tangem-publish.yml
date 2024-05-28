@@ -14,11 +14,16 @@ env:
 jobs:
   create_tag_and_release:
     name: Create tag and release
-    runs-on: macos-13
+    runs-on: macos-latest
     concurrency:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
     steps:
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd  # v1.6.0
+        with:
+          xcode-version: '15.3'
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -47,7 +52,7 @@ jobs:
 
   publish_ios:
     name: Publish iOS
-    runs-on: macos-13
+    runs-on: macos-latest
     concurrency:
       group: ${{ github.ref }}_publish_ios
       cancel-in-progress: true
