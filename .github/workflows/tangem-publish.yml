@@ -53,17 +53,40 @@ jobs:
       cancel-in-progress: true
     needs: create_tag_and_release
     steps:
-      - name: Generate dummy artefacts 1
-        run: mkdir -p output/WalletCore.xcframework
-
-      - name: Generate dummy artefacts 2
-        run: touch output/WalletCore.xcframework/dummy
-
-      - name: Upload dummy artefacts
-        uses: actions/upload-artifact@master
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          name: wallet-core-binaries-ios
-          path: output/WalletCore.xcframework/
+          fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/install_dependencies_composite_action
+
+      - name: Generate files
+        run: tools/generate-files ios
+
+      - name: Build XCFramework
+        run: tools/ios-xcframework
+
+      - name: Prepare artefacts
+        if: false # temporarily disabled
+        run: |
+          mkdir -p output/artefacts/wallet-core
+          mkdir -p output/artefacts/swift-protobuf
+          mv output/WalletCore* output/artefacts/wallet-core/
+          mv output/SwiftProtobuf* output/artefacts/swift-protobuf/
+
+      - name: Prepare binaries (WalletCore and SwiftProtobuf)
+        if: false # temporarily disabled
+        run: tools/ios-xcframework-prepare
+
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-artefacts
+          path: output/*.xcframework
+
+      # TODO: Upload dSYMs
 
   upload_binaries_ios:
     name: Upload binaries iOS
@@ -73,76 +96,31 @@ jobs:
       cancel-in-progress: true
     needs: publish_ios
     steps:
-      - name: Download dummy artefacts
+      - name: Download artefacts
         uses: actions/download-artifact@master
         with:
-          name: wallet-core-binaries-ios
-          path: output/WalletCore.xcframework/
+          name: binary-artefacts
+          path: output
+
+      - name: Update wallet-core-binaries-ios repo
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
+        with:
+          source-directory: 'output/WalletCore.xcframework'
+          destination-github-username: 'tangem'
+          destination-repository-name: 'wallet-core-binaries-ios'
+          target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
 
       - name: Update swift-protobuf-binaries repo
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
-          # SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
-          SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
+          SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
         with:
-          source-directory: 'output'
-          # destination-github-username: 'Tangem artefacts'
+          source-directory: 'output/SwiftProtobuf.xcframework'
           destination-github-username: 'tangem'
-          destination-repository-name: 'wallet-core-binaries-ios'
-          # destination-repository-name: 'swift-protobuf-binaries'
+          destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
-
-
-
-  # publish_ios:
-  #   name: Publish iOS
-  #   runs-on: macos-13
-  #   concurrency:
-  #     group: ${{ github.ref }}_publish_ios
-  #     cancel-in-progress: true
-  #   needs: create_tag_and_release
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
-  #         fetch-depth: 0
-
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install_dependencies_composite_action
-
-  #     - name: Generate files
-  #       run: tools/generate-files ios
-
-  #     - name: Build XCFramework
-  #       run: tools/ios-xcframework
-
-  #     - name: Prepare binaries (WalletCore and SwiftProtobuf)
-  #       run: tools/ios-xcframework-prepare
-
-  #       # TODO: create a new release in target repo too
-  #     - name: Update swift-protobuf-binaries repo
-  #       uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
-  #       if: false # temporarily disabled
-  #       env:
-  #         API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         source-directory: 'output'
-  #         destination-github-username: 'tangem'
-  #         destination-repository-name: 'swift-protobuf-binaries'
-  #         target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
-
-  #     - name: Update wallet-core-binaries-ios repo
-  #       if: false # temporarily disabled
-  #       uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
-  #       env:
-  #         API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         source-directory: 'output'
-  #         destination-github-username: 'tangem'
-  #         destination-repository-name: 'wallet-core-binaries-ios'
-  #         target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
-
 
   publish_android:
     name: Publish Android
