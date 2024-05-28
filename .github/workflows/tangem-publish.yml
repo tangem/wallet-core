@@ -70,7 +70,6 @@ jobs:
 
       - name: Prepare artefacts
         run: |
-          ls -ltrah swift/build/
           mkdir -p output/artefacts/wallet-core
           mkdir -p output/artefacts/swift-protobuf
           mv swift/build/WalletCore.xcframework output/artefacts/wallet-core/
