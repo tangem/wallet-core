@@ -83,13 +83,13 @@ jobs:
       - name: Upload WalletCore artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: wallet-core-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
+          name: wallet-core-binary-artefacts-${{ github.sha }}
           path: output/artefacts/wallet-core/
 
       - name: Upload SwiftProtobuf artefacts
         uses: actions/upload-artifact@v4
         with:
-          name: swift-protobuf-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
+          name: swift-protobuf-binary-artefacts-${{ github.sha }}
           path: output/artefacts/swift-protobuf/
 
       # TODO: Upload dSYMs
@@ -98,14 +98,14 @@ jobs:
     name: Upload WalletCore binaries iOS
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.ref }}_publish_ios
+      group: ${{ github.ref }}_upload_wallet_core_binaries_ios
       cancel-in-progress: true
     needs: publish_ios
     steps:
       - name: Download artefacts
         uses: actions/download-artifact@master
         with:
-          name: wallet-core-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
+          name: wallet-core-binary-artefacts-${{ github.sha }}
           path: output
 
       - name: Update wallet-core-binaries-ios repo
@@ -123,14 +123,14 @@ jobs:
     name: Upload SwiftProtobuf binaries iOS
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.ref }}_publish_ios
+      group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
       cancel-in-progress: true
     needs: publish_ios
     steps:
       - name: Download artefacts
         uses: actions/download-artifact@master
         with:
-          name: swift-protobuf-binary-artefacts_${{ github.sha }}  # TODO: Use SHA of the artefact instead
+          name: swift-protobuf-binary-artefacts-${{ github.sha }}
           path: output
 
       - name: Update swift-protobuf-binaries repo
