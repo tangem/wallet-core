@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Read version.properties file
-        uses: BrycensRanch/read-properties-action@v1
+        uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
         id: version
         with:
           file: version.properties
@@ -40,7 +40,7 @@ jobs:
 
       - name: Create tag and release
         if: false # temporarily disabled
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
           name: ${{ steps.version.outputs.tangem }}
           tag_name: ${{ steps.version.outputs.tangem }}
@@ -103,7 +103,7 @@ jobs:
     needs: publish_ios
     steps:
       - name: Download artefacts
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v4
         with:
           name: wallet-core-binary-artefacts-${{ github.sha }}
           path: output
@@ -128,7 +128,7 @@ jobs:
     needs: publish_ios
     steps:
       - name: Download artefacts
-        uses: actions/download-artifact@master
+        uses: actions/download-artifact@v4
         with:
           name: swift-protobuf-binary-artefacts-${{ github.sha }}
           path: output
