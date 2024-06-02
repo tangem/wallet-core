@@ -71,6 +71,9 @@ jobs:
         with:
           xcode-version: '15.4'
 
+      - name: TestTestTest
+        run: echo ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
