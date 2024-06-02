@@ -18,7 +18,6 @@ jobs:
     outputs:
       publish_version: ${{ steps.version.outputs.tangem }}
       swift_protobuf_publish_version: ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}
-      should_update_swift_protobuf: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }}
     concurrency:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
@@ -41,9 +40,6 @@ jobs:
           file: swift-protobuf-version.properties
           all: true
 
-      - name: Check if SwiftProtobuf binary must be updated
-        run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}"
-
       - name: Echo version.properties
         run: |
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
@@ -61,6 +57,8 @@ jobs:
   publish_ios:
     name: Publish iOS
     runs-on: macos-latest
+    outputs:
+      should_update_swift_protobuf: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }}
     concurrency:
       group: ${{ github.ref }}_publish_ios
       cancel-in-progress: true
@@ -71,22 +69,14 @@ jobs:
         with:
           xcode-version: '15.4'
 
-      - name: TestTestTest
-        run: echo ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }}
-
-      - name: TestTestTest2
-        if: needs.create_tag_and_release.outputs.should_update_swift_protobuf == 1
-        run: echo 'should_update_swift_protobuf true'
-
-      - name: TestTestTest3
-        if: needs.create_tag_and_release.outputs.should_update_swift_protobuf == 0
-        run: echo 'should_update_swift_protobuf false'
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
           fetch-depth: 0
+
+      - name: Check if SwiftProtobuf binary must be updated
+        run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"
 
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
@@ -157,7 +147,7 @@ jobs:
 
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
-    if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 1
+    if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
