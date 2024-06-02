@@ -57,12 +57,6 @@ jobs:
         with:
           xcode-version: '15.4'
 
-      # TODO: Test only, remove
-      - name: Print swift version
-        run: |
-          echo `xcrun swift -version`
-          echo `swift -version`
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
