@@ -22,6 +22,9 @@ jobs:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       # Temp
       - name: Check if SwiftProtobuf binary must be updated
         run: tools/check_if_swift_protobuf_should_be_updated
@@ -33,9 +36,6 @@ jobs:
       - name: Test2
         if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 0
         run: exit 777
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Read version.properties file
         uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
