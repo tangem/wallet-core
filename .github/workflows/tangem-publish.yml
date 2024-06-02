@@ -18,24 +18,13 @@ jobs:
     outputs:
       publish_version: ${{ steps.version.outputs.tangem }}
       swift_protobuf_publish_version: ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}
+      should_update_swift_protobuf: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }}
     concurrency:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # Temp
-      - name: Check if SwiftProtobuf binary must be updated
-        run: tools/check_if_swift_protobuf_should_be_updated
-
-      - name: Test
-        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 1
-        run: exit 666
-
-      - name: Test2
-        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 0
-        run: exit 777
 
       - name: Read version.properties file
         uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
@@ -56,6 +45,9 @@ jobs:
         run: |
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
           echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
+
+      - name: Check if SwiftProtobuf binary must be updated
+        run: tools/check_if_swift_protobuf_should_be_updated
 
       - name: Create tag and release
         if: false # temporarily disabled
@@ -152,9 +144,9 @@ jobs:
           repository: 'tangem/wallet-core-binaries-ios'
           target_commitish: 'test/IOS-6122_build_scripts' # TODO: remove since the default branch ('main') should be used as a target
 
-  # TODO: Run this job only if needed (i.e. if SwiftProtobuf version is updated)
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
+    if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 1
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
