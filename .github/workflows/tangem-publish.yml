@@ -15,6 +15,8 @@ jobs:
   create_tag_and_release:
     name: Create tag and release
     runs-on: macos-latest
+    outputs:
+      publish_version: ${{ steps.version.outputs.tangem }}
     concurrency:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
@@ -36,7 +38,7 @@ jobs:
           default: 0.0.1-tangem1
 
       - name: Echo version.properties
-        run: echo ${{ steps.version.outputs.tangem }}
+        run: echo 'Publishing version ${{ steps.version.outputs.tangem }}'
 
       - name: Create tag and release
         if: false # temporarily disabled
@@ -46,9 +48,6 @@ jobs:
           tag_name: ${{ steps.version.outputs.tangem }}
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
-
-    outputs:
-      publish_version: ${{ steps.version.outputs.tangem }}
 
   publish_ios:
     name: Publish iOS
@@ -100,7 +99,9 @@ jobs:
     concurrency:
       group: ${{ github.ref }}_upload_wallet_core_binaries_ios
       cancel-in-progress: true
-    needs: publish_ios
+    needs: 
+      - publish_ios
+      - create_tag_and_release
     steps:
       - name: Download artefacts
         uses: actions/download-artifact@v4
@@ -119,13 +120,26 @@ jobs:
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'WalletCore.xcframework'
 
+      - name: Create tag and release
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
+        with:
+          tag_name: ${{ needs.create_tag_and_release.outputs.publish_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          make_latest: true
+          repository: 'tangem/wallet-core-binaries-ios'
+          target_commitish: 'test/IOS-6122_build_scripts' # TODO: remove since the default branch ('main') should be used as a target
+
+  # TODO: Run this job only if needed (i.e. if SwiftProtobuf version is updated)
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
       cancel-in-progress: true
-    needs: publish_ios
+    needs: 
+      - publish_ios
+      - create_tag_and_release
     steps:
       - name: Download artefacts
         uses: actions/download-artifact@v4
@@ -143,6 +157,16 @@ jobs:
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'SwiftProtobuf.xcframework'
+
+      - name: Create tag and release
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
+        with:
+          tag_name: ${{ needs.create_tag_and_release.outputs.publish_version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          make_latest: true
+          repository: 'tangem/swift-protobuf-binaries'
+          target_commitish: 'test/IOS-6122_build_scripts' # TODO: remove since the default branch ('main') should be used as a target
 
   publish_android:
     name: Publish Android
