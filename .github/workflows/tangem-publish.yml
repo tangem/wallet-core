@@ -22,8 +22,8 @@ jobs:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
     steps:
-        # Temp
-        - name: Check if SwiftProtobuf binary must be updated
+      # Temp
+      - name: Check if SwiftProtobuf binary must be updated
         run: |
           if git ls-remote --tags https://github.com/tangem/swift-protobuf-binaries.git | grep -q "refs/tags/${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"; then
             echo "Tag exists"
