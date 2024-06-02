@@ -80,12 +80,12 @@ jobs:
 
       # TODO: Delete
       - name: Test1
-        if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
+        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 1
         run: echo 'should_update_swift_protobuf == true'
 
       # TODO: Delete
       - name: Test2
-        if: needs.publish_ios.outputs.should_update_swift_protobuf == 0
+        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 0
         run: echo 'should_update_swift_protobuf == false'
 
       - name: Install dependencies
@@ -146,6 +146,7 @@ jobs:
           target-directory: 'WalletCore.xcframework'
 
       - name: Create tag and release
+        if: false # temporarily disabled due to a lack of permissions
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
           tag_name: ${{ needs.create_tag_and_release.outputs.publish_version }}
@@ -184,6 +185,7 @@ jobs:
           target-directory: 'SwiftProtobuf.xcframework'
 
       - name: Create tag and release
+        if: false # temporarily disabled due to a lack of permissions
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
           tag_name: ${{ needs.create_tag_and_release.outputs.publish_version }}
