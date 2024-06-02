@@ -24,12 +24,15 @@ jobs:
     steps:
       # Temp
       - name: Check if SwiftProtobuf binary must be updated
-        run: |
-          if git ls-remote --tags https://github.com/tangem/swift-protobuf-binaries.git | grep -q "refs/tags/${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"; then
-            echo "Tag exists"
-          else
-            echo "Tag does not exist"
-          fi
+        run: /tools/check_if_swift_protobuf_should_be_updated
+
+      - name: Test
+        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 1
+        run: exit 666
+
+      - name: Test2
+        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 0
+        run: exit 777
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -160,14 +163,6 @@ jobs:
       - publish_ios
       - create_tag_and_release
     steps:
-      - name: Check if SwiftProtobuf binary must be updated
-        run: |
-          if git ls-remote --tags https://github.com/tangem/swift-protobuf-binaries.git | grep -q "refs/tags/${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"; then
-            echo "Tag exists"
-          else
-            echo "Tag does not exist"
-          fi
-
       - name: Download artefacts
         uses: actions/download-artifact@v4
         with:
