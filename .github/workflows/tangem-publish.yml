@@ -41,13 +41,13 @@ jobs:
           file: swift-protobuf-version.properties
           all: true
 
+      - name: Check if SwiftProtobuf binary must be updated
+        run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'"
+
       - name: Echo version.properties
         run: |
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
           echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
-
-      - name: Check if SwiftProtobuf binary must be updated
-        run: tools/check_if_swift_protobuf_should_be_updated
 
       - name: Create tag and release
         if: false # temporarily disabled
@@ -75,11 +75,11 @@ jobs:
         run: echo ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }}
 
       - name: TestTestTest2
-        if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 1
+        if: needs.create_tag_and_release.outputs.should_update_swift_protobuf == 1
         run: echo 'should_update_swift_protobuf true'
 
       - name: TestTestTest3
-        if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 0
+        if: needs.create_tag_and_release.outputs.should_update_swift_protobuf == 0
         run: echo 'should_update_swift_protobuf false'
 
       - name: Checkout
