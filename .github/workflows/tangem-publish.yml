@@ -17,6 +17,7 @@ jobs:
     runs-on: macos-latest
     outputs:
       publish_version: ${{ steps.version.outputs.tangem }}
+      swift_protobuf_publish_version: ${{ steps.swift_protobuf_version.outputs.version_tag, '-', steps.swift_protobuf_version.outputs.tangem_suffix }}
     concurrency:
       group: ${{ github.ref }}_create_tag_and_release
       cancel-in-progress: true
@@ -32,8 +33,17 @@ jobs:
           property: tangem
           default: 0.0.1-tangem1
 
+      - name: Read swift-protobuf-version.properties file
+        uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
+        id: swift_protobuf_version
+        with:
+          file: swift-protobuf-version.properties
+          all: true
+
       - name: Echo version.properties
-        run: echo 'Publishing version ${{ steps.version.outputs.tangem }}'
+        run: |
+          echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
+          echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag, '-', steps.swift_protobuf_version.outputs.tangem_suffix }}'
 
       - name: Create tag and release
         if: false # temporarily disabled
