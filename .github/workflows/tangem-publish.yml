@@ -74,6 +74,14 @@ jobs:
       - name: TestTestTest
         run: echo ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }}
 
+      - name: TestTestTest2
+        if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 1
+        run: echo 'should_update_swift_protobuf true'
+
+      - name: TestTestTest3
+        if: ${{ needs.create_tag_and_release.outputs.should_update_swift_protobuf }} == 0
+        run: echo 'should_update_swift_protobuf false'
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
