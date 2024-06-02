@@ -24,7 +24,7 @@ jobs:
     steps:
       # Temp
       - name: Check if SwiftProtobuf binary must be updated
-        run: /tools/check_if_swift_protobuf_should_be_updated
+        run: tools/check_if_swift_protobuf_should_be_updated
 
       - name: Test
         if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 1
