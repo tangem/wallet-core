@@ -80,12 +80,12 @@ jobs:
 
       # TODO: Delete
       - name: Test1
-        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 1
+        if: env.SHOULD_UPDATE_SWIFT_PROTOBUF == 1
         run: echo 'should_update_swift_protobuf == true'
 
       # TODO: Delete
       - name: Test2
-        if: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }} == 0
+        if: env.SHOULD_UPDATE_SWIFT_PROTOBUF == 0
         run: echo 'should_update_swift_protobuf == false'
 
       - name: Install dependencies
