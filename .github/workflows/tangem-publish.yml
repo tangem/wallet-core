@@ -43,7 +43,7 @@ jobs:
       - name: Echo version.properties
         run: |
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
-          echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag, '-', steps.swift_protobuf_version.outputs.tangem_suffix }}'
+          echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
 
       - name: Create tag and release
         if: false # temporarily disabled
