@@ -54,6 +54,15 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
+      - name: Create tag and release test
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
+        with:
+          target_commitish: test/IOS-6122_build_scripts # TODO: remove since the default branch ('main') should be used as a target
+          tag_name: test_tag_1
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          repository: tangem/swift-protobuf-binaries
+
   publish_ios:
     name: Publish iOS
     runs-on: macos-latest
