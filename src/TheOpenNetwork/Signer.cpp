@@ -35,6 +35,11 @@ Data Signer::createTransferMessage(std::shared_ptr<Wallet> wallet, const Private
 }
 
 Data Signer::createJettonTransferMessage(std::shared_ptr<Wallet> wallet, const PrivateKey& privateKey, const Proto::JettonTransfer& jettonTransfer) {
+    return createJettonTransferMessage(wallet, privateKey, jettonTransfer, nullptr);
+}
+
+// TANGEM
+Data Signer::createJettonTransferMessage(std::shared_ptr<Wallet> wallet, const PrivateKey& privateKey, const Proto::JettonTransfer& jettonTransfer, const std::function<Data(Data)> externalSigner) {
     const Proto::Transfer& transferData = jettonTransfer.transfer();
     
     const auto payload = jettonTransferPayload(
@@ -48,6 +53,7 @@ Data Signer::createJettonTransferMessage(std::shared_ptr<Wallet> wallet, const P
     
     const auto msg = wallet->createQueryMessage(
         privateKey,
+        externalSigner,
         Address(transferData.dest(), transferData.bounceable()),
         transferData.amount(),
         transferData.sequence_number(),
@@ -102,7 +108,7 @@ Proto::SigningOutput Signer::sign(const Proto::SigningInput& input, const Data& 
             case Proto::WalletVersion::WALLET_V4_R2: {
                 const int8_t workchainId = WorkchainType::Basechain;
                 auto wallet = std::make_shared<WalletV4R2>(publicKey, workchainId);
-                const auto& transferMessage = Signer::createJettonTransferMessage(wallet, privateKey, jettonTransfer);
+                const auto& transferMessage = Signer::createJettonTransferMessage(wallet, privateKey, jettonTransfer, externalSigner);
                 protoOutput.set_encoded(TW::Base64::encode(transferMessage));
                 break;
             }
