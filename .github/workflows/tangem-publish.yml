@@ -63,7 +63,7 @@ jobs:
           tag_name: test_tag_1
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
-          # repository: tangem/swift-protobuf-binaries
+          repository: tangem/wallet-core-binaries-ios
 
   publish_ios:
     name: Publish iOS
