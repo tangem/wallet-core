@@ -60,7 +60,7 @@ jobs:
       - name: Create tag and release test
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
-          # target_commitish: 9c2372b594ac64ab8ad1ac61f92ff4778f2b3960 # TODO: remove since the default branch ('main') should be used as a target
+          target_commitish: 9c2372b594ac64ab8ad1ac61f92ff4778f2b3960 # TODO: remove since the default branch ('main') should be used as a target
           tag_name: test_tag_1
           token: ${{ secrets.GH_MOBILE_PAT }}
           generate_release_notes: false
