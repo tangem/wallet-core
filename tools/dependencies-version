@@ -1,10 +1,13 @@
 #!/bin/bash
 
+get_property() {
+    local property_file=$1
+    local property_key=$2
+    grep "^$property_key=" "$property_file" | cut -d'=' -f2
+}
+
 export GTEST_VERSION=1.11.0
 export CHECK_VERSION=0.15.2
 export JSON_VERSION=3.10.2
 export PROTOBUF_VERSION=3.19.2
-
-# Before upgrading, make sure that the new version of the SwiftProtobuf library is compatible with other consumers 
-# of the binary artifact (grpc-swift, hedera-sdk-swift, SwiftBinanceChain, blockchain-sdk-swift and so on)
-export SWIFT_PROTOBUF_VERSION=1.25.2
+export SWIFT_PROTOBUF_VERSION=$(get_property "swift-protobuf-version.properties" "version_tag")
