@@ -44,7 +44,7 @@ jobs:
 
       - name: Echo versions
         run: |
-          echo 'Update from ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/commit/${{ GITHUB_SHA }}'
+          echo 'Update from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA'
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
           echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
 
