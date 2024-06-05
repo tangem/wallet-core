@@ -15,8 +15,6 @@ jobs:
   create_tag_and_release:
     name: Create tag and release
     runs-on: macos-latest
-    permissions:
-      contents: write
     outputs:
       publish_version: ${{ steps.version.outputs.tangem }}
       swift_protobuf_publish_version: ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}
