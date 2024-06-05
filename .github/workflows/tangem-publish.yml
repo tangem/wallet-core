@@ -57,8 +57,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
-      # TODO: Remove
+      # TODO: Test only, remove
       - name: Create tag and release test
+        if: false # temporarily disabled
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
           target_commitish: 9c2372b594ac64ab8ad1ac61f92ff4778f2b3960 # TODO: remove since the default branch ('main') should be used as a target
@@ -181,6 +182,7 @@ jobs:
 
   publish_android:
     name: Publish Android
+    if: false # temporarily disabled
     runs-on: macos-13
     concurrency:
       group: ${{ github.ref }}_publish_android
