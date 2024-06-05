@@ -44,7 +44,6 @@ jobs:
 
       - name: Echo versions
         run: |
-          echo Update from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA
           echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
           echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
 
@@ -149,7 +148,7 @@ jobs:
           destination-repository-name: 'wallet-core-binaries-ios'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'WalletCore.xcframework'
-          commit-message: 'Update from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA (${{ needs.create_tag_and_release.outputs.publish_version }})'
+          commit-message: 'Update from ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/commit/${{ GITHUB_SHA }} (${{ needs.create_tag_and_release.outputs.publish_version }})'
 
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
@@ -178,7 +177,7 @@ jobs:
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'SwiftProtobuf.xcframework'
-          commit-message: 'Update from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
+          commit-message: 'Update from ${{ GITHUB_SERVER_URL }}/${{ GITHUB_REPOSITORY }}/commit/${{ GITHUB_SHA }} (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
 
   publish_android:
     name: Publish Android
