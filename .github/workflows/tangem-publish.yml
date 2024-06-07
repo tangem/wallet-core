@@ -5,7 +5,7 @@ on:
     branches:
       - 'master'
       - 'feature/IOS-6122_build_scripts' # TODO: remove
-      - 'test/IOS-6122_build_scripts' # TODO: remove
+      - 'test/IOS-6122_build_scripts' # TODO: remove 
   workflow_dispatch:
 
 env:
