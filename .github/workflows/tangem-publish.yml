@@ -65,6 +65,9 @@ jobs:
           touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
           touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
 
+          ls -ltrah swift/build/WalletCore.dSYMs
+          ls -ltrah swift/build/SwiftProtobuf.dSYMs
+
           curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
           chmod +x upload-symbols
 
