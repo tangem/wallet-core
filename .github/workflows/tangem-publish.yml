@@ -58,19 +58,10 @@ jobs:
         env:
           FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
         run: |
-          mkdir -p swift/build/WalletCore.dSYMs
-          mkdir -p swift/build/SwiftProtobuf.dSYMs
-          touch swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64_x86_64-simulator.dSYM
-          touch swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64.dSYM
-          touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
-          touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
-
-          ls -ltrah swift/build/WalletCore.dSYMs
-          ls -ltrah swift/build/SwiftProtobuf.dSYMs
-
-          # wget https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols
-          # chmod +x upload-symbols
-
+          mkdir -p swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64_x86_64-simulator.dSYM
+          mkdir -p swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64.dSYM
+          mkdir -p swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
+          mkdir -p swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
           curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
           chmod +x upload-symbols
 
