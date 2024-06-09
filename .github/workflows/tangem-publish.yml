@@ -68,8 +68,8 @@ jobs:
           ls -ltrah swift/build/WalletCore.dSYMs
           ls -ltrah swift/build/SwiftProtobuf.dSYMs
 
-          curl --verbose https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
-          chmod +x upload-symbols
+          wget https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols
+          # chmod +x upload-symbols
 
           find swift/build/ -type d -name "*.dSYM" -exec echo {} \;
 
