@@ -1,0 +1,8 @@
+platform :ios do
+  lane :upload_dsyms do
+    setup_ci if ENV['CI']
+    upload_symbols_to_crashlytics(
+      debug: true
+    )
+  end
+end

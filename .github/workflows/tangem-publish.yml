@@ -54,6 +54,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
+      - name: Test upload symbols
+        run: |
+          mkdir -p swift/build/WalletCore.dSYMs
+          mkdir -p swift/build/SwiftProtobuf.dSYMs
+          touch swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64_x86_64-simulator.dSYM
+          touch swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64.dSYM
+          touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
+          touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
+          fastlane upload_dsyms
+          exit 666
+
   publish_ios:
     name: Publish iOS
     runs-on: macos-latest
