@@ -55,6 +55,8 @@ jobs:
           generate_release_notes: true
 
       - name: Test upload symbols
+        env:
+          FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
         run: |
           mkdir -p swift/build/WalletCore.dSYMs
           mkdir -p swift/build/SwiftProtobuf.dSYMs
@@ -62,7 +64,13 @@ jobs:
           touch swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64.dSYM
           touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
           touch swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
-          fastlane upload_dsyms
+
+          curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
+          chmod +x upload-symbols
+
+          # `upload-symbols` indeed accepts a list of paths to upload, but using it in the foreach loop is just a dead-simple approach
+          find swift/build/ -type d -name "*.dSYM" -exec upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
+
           exit 666
 
   publish_ios:
