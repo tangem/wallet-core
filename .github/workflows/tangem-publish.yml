@@ -68,15 +68,17 @@ jobs:
           ls -ltrah swift/build/WalletCore.dSYMs
           ls -ltrah swift/build/SwiftProtobuf.dSYMs
 
-          wget https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols
+          # wget https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols
           # chmod +x upload-symbols
 
-          find swift/build/ -type d -name "*.dSYM" -exec echo {} \;
+          curl --verbose https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
+
+          # find swift/build/ -type d -name "*.dSYM" -exec echo {} \;
 
           # `upload-symbols` indeed accepts a list of paths to upload, but using it in the foreach loop is just a dead-simple approach
-          find swift/build/ -type d -name "*.dSYM" -exec upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
+          # find swift/build/ -type d -name "*.dSYM" -exec upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
 
-          exit 666
+          # exit 666
 
   publish_ios:
     name: Publish iOS
