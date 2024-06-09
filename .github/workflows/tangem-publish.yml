@@ -55,6 +55,7 @@ jobs:
           generate_release_notes: true
 
       - name: Test upload symbols
+        if: false # temporarily disabled
         env:
           FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
         run: |
@@ -127,7 +128,15 @@ jobs:
           name: swift-protobuf-binary-artefacts-${{ github.sha }}
           path: output/artefacts/swift-protobuf/
 
-      # TODO: Upload dSYMs
+      - name: Upload DSYMs
+        env:
+          FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
+        run: |
+          # We don't want to have Firebase as a dependency, so we download and use the `upload-symbols` script manually
+          curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
+          chmod +x upload-symbols
+          # The `upload-symbols` script indeed accepts a list of paths to upload, but using it in the foreach loop like this is just a dead-simple approach
+          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
 
   upload_wallet_core_binaries_ios:
     name: Upload WalletCore binaries iOS
