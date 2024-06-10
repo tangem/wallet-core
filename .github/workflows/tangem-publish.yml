@@ -93,7 +93,8 @@ jobs:
           clang-format \
           ccache \
           cocoapods
-          # echo Done installing deps!
+          echo Done installing deps!
+          clang -x c -v -E /dev/null
           # find / -type f -iname 'functional' 2>/dev/null
 
       - name: Install dependencies
