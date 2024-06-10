@@ -3,7 +3,7 @@
 // Copyright © 2017 Trust Wallet.
 
 #include <TrustWalletCore/TWAnySigner.h>
-// #include <TrustWalletCore/TWAnySignerTangem.h>   # TODO: is it required?
+#include <TrustWalletCore/TWAnySignerTangem.h>
 
 #include "Coin.h"
 

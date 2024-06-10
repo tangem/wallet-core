@@ -54,28 +54,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
-      - name: Test upload symbols
-        if: false # temporarily disabled
-        env:
-          FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
-        run: |
-          mkdir -p swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64_x86_64-simulator.dSYM
-          mkdir -p swift/build/WalletCore.dSYMs/WalletCore.framework.ios-arm64.dSYM
-          mkdir -p swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64_x86_64-simulator.dSYM
-          mkdir -p swift/build/SwiftProtobuf.dSYMs/SwiftProtobuf.framework.ios-arm64.dSYM
-          curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
-          chmod +x upload-symbols
-
-          find swift/build -type d -name "*.dSYM" -exec echo {} \;
-
-          # `upload-symbols` indeed accepts a list of paths to upload, but using it in the foreach loop is just a dead-simple approach
-          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
-
-          echo Test!
-          echo pwd
-
-          exit -1
-
   publish_ios:
     name: Publish iOS
     runs-on: macos-latest
@@ -136,7 +114,7 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
           chmod +x upload-symbols
           # The `upload-symbols` script indeed accepts a list of paths to upload, but using it in the foreach loop like this is just a dead-simple approach
-          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --debug --platform ios --app-id $FB_IOS_APP_ID {} \;
+          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --platform ios --app-id $FB_IOS_APP_ID {} \;
 
   upload_wallet_core_binaries_ios:
     name: Upload WalletCore binaries iOS
