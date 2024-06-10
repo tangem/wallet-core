@@ -94,7 +94,7 @@ jobs:
           ccache \
           cocoapods
           echo Done installing deps!
-          find / -iname 'functional' 2>/dev/null
+          find / -type f -iname 'functional' 2>/dev/null
 
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
