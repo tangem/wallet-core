@@ -1,6 +1,6 @@
 #pragma once
 
-#include </Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional"
+#include </Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional>
 #include "TWBase.h"
 #include "TWCoinType.h"
 #include "TWData.h"
