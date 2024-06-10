@@ -1,10 +1,14 @@
+#if !(defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))
+
 #pragma once
 
-#include "/Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional"
+#include <functional>
 #include "TWBase.h"
 #include "TWCoinType.h"
 #include "TWData.h"
 #include "TWString.h"
 
 // TANGEM
-extern TWData *_Nonnull TWAnySignerSignExternally(TWData* _Nonnull data, enum TWCoinType coin, TWData *_Nonnull publicKey, std::function<const TWData *_Nonnull(const TWData *_Nonnull)> externalSigner);
+extern TWData *_Nonnull TWAnySignerSignExternally(TWData* _Nonnull data, enum TWCoinType coin, TWData *_Nonnull publicKey, std::function<const TWData *_Nonnull(const TWData *_Nonnull)> externalSigner);   // Not used on iOS
+
+#endif  // !(defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))

@@ -78,26 +78,6 @@ jobs:
       - name: Check if SwiftProtobuf binary must be updated
         run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"
 
-      - name: Install HomeBrew dependencies (test)
-        run: |
-          # brew install \
-          # cmake \
-          # boost \
-          # ruby \
-          # git \
-          # ninja \
-          # autoconf \
-          # automake \
-          # libtool \
-          # xcodegen \
-          # clang-format \
-          # ccache \
-          # cocoapods
-          # echo Done installing deps!
-          clang -x c -v -E /dev/null
-          ls -ltrah /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional
-          # find / -type f -iname 'functional' 2>/dev/null
-
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
 
@@ -139,6 +119,7 @@ jobs:
   upload_wallet_core_binaries_ios:
     name: Upload WalletCore binaries iOS
     runs-on: ubuntu-latest
+    if: false # temporarily disabled
     concurrency:
       group: ${{ github.ref }}_upload_wallet_core_binaries_ios
       cancel-in-progress: true
@@ -168,6 +149,7 @@ jobs:
     name: Upload SwiftProtobuf binaries iOS
     if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
     runs-on: ubuntu-latest
+    if: false # temporarily disabled
     concurrency:
       group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
       cancel-in-progress: true
