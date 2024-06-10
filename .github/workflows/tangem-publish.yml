@@ -118,8 +118,8 @@ jobs:
 
   upload_wallet_core_binaries_ios:
     name: Upload WalletCore binaries iOS
-    runs-on: ubuntu-latest
     if: false # temporarily disabled
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}_upload_wallet_core_binaries_ios
       cancel-in-progress: true
@@ -147,9 +147,9 @@ jobs:
 
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
-    if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
-    runs-on: ubuntu-latest
     if: false # temporarily disabled
+    # if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
+    runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
       cancel-in-progress: true
