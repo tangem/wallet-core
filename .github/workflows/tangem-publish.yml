@@ -80,21 +80,22 @@ jobs:
 
       - name: Install HomeBrew dependencies (test)
         run: |
-          brew install \
-          cmake \
-          boost \
-          ruby \
-          git \
-          ninja \
-          autoconf \
-          automake \
-          libtool \
-          xcodegen \
-          clang-format \
-          ccache \
-          cocoapods
-          echo Done installing deps!
+          # brew install \
+          # cmake \
+          # boost \
+          # ruby \
+          # git \
+          # ninja \
+          # autoconf \
+          # automake \
+          # libtool \
+          # xcodegen \
+          # clang-format \
+          # ccache \
+          # cocoapods
+          # echo Done installing deps!
           clang -x c -v -E /dev/null
+          ls -ltrah /Applications/Xcode_15.4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional
           # find / -type f -iname 'functional' 2>/dev/null
 
       - name: Install dependencies
