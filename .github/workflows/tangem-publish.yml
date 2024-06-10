@@ -78,6 +78,22 @@ jobs:
       - name: Check if SwiftProtobuf binary must be updated
         run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"
 
+      - name: Install HomeBrew dependencies (test)
+        run: |
+          brew install \
+          cmake \
+          boost \
+          ruby \
+          git \
+          ninja \
+          autoconf \
+          automake \
+          libtool \
+          xcodegen \
+          clang-format \
+          ccache \
+          cocoapods
+
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
 
