@@ -93,8 +93,8 @@ jobs:
           clang-format \
           ccache \
           cocoapods
-          echo Done installing deps!
-          find / -type f -iname 'functional' 2>/dev/null
+          # echo Done installing deps!
+          # find / -type f -iname 'functional' 2>/dev/null
 
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
