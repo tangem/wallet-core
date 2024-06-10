@@ -80,19 +80,20 @@ jobs:
 
       - name: Install HomeBrew dependencies (test)
         run: |
-          brew install \
-          cmake \
-          boost \
-          ruby \
-          git \
-          ninja \
-          autoconf \
-          automake \
-          libtool \
-          xcodegen \
-          clang-format \
-          ccache \
-          cocoapods
+          find / -iname 'functional' 2>/dev/null
+          # brew install \
+          # cmake \
+          # boost \
+          # ruby \
+          # git \
+          # ninja \
+          # autoconf \
+          # automake \
+          # libtool \
+          # xcodegen \
+          # clang-format \
+          # ccache \
+          # cocoapods
 
       - name: Install dependencies
         uses: ./.github/actions/install_dependencies_composite_action
