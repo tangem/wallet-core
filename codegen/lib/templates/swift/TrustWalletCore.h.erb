@@ -15,7 +15,6 @@ FOUNDATION_EXPORT const unsigned char WalletCoreVersionString[];
 #include "TWString.h"
 
 #include "TWAnySigner.h"
-#include "TWAnySignerTangem.h"
 
 <% entities.sort { |x,y| x.name <=> y.name }.select { |entity| !entity.name.end_with?("Proto") }.each do |entity| -%>
 #include "TW<%= entity.name %>.h"
