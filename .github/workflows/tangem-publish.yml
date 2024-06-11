@@ -75,6 +75,10 @@ jobs:
           fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
           fetch-depth: 0
 
+      # This header is not used on iOS and causes a compilation error
+      - name: Remove unused files
+        run: rm -rf include/TrustWalletCore/TWAnySignerTangem.h
+
       - name: Check if SwiftProtobuf binary must be updated
         run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"
 
@@ -83,11 +87,6 @@ jobs:
 
       - name: Generate files
         run: tools/generate-files ios
-
-      - name: Remove unused files
-        run: |
-          # This header is not used on iOS and causes a compilation error
-          rm -rf include/TrustWalletCore/TWAnySignerTangem.h
 
       - name: Build XCFramework
         run: tools/ios-xcframework
