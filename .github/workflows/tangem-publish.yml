@@ -1,5 +1,5 @@
 name: Tangem - Publish
-
+run-name: Publish new release with changes from commit '${{ github.event.head_commit.message }}' (${{ github.sha }})
 on:
   push:
     branches:
@@ -54,16 +54,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
 
-      # TODO: Remove
-      - name: Create tag and release test
-        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
-        with:
-          target_commitish: test/IOS-6122_build_scripts # TODO: remove since the default branch ('main') should be used as a target
-          tag_name: test_tag_1
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-          repository: tangem/wallet-core-binaries-ios
-
   publish_ios:
     name: Publish iOS
     runs-on: macos-latest
@@ -94,6 +84,11 @@ jobs:
       - name: Generate files
         run: tools/generate-files ios
 
+      - name: Remove unused files
+        run: |
+          # This header is not used on iOS and causes a compilation error
+          rm -rf include/TrustWalletCore/TWAnySignerTangem.h
+
       - name: Build XCFramework
         run: tools/ios-xcframework
 
@@ -116,7 +111,15 @@ jobs:
           name: swift-protobuf-binary-artefacts-${{ github.sha }}
           path: output/artefacts/swift-protobuf/
 
-      # TODO: Upload dSYMs
+      - name: Upload DSYMs
+        env:
+          FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
+        run: |
+          # We don't want to have Firebase as a dependency, so we download and use the `upload-symbols` script manually
+          curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
+          chmod +x upload-symbols
+          # The `upload-symbols` script indeed accepts a list of paths to upload, but using it in the foreach loop like this is just a dead-simple approach
+          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --platform ios --app-id $FB_IOS_APP_ID {} \;
 
   upload_wallet_core_binaries_ios:
     name: Upload WalletCore binaries iOS
@@ -144,16 +147,7 @@ jobs:
           destination-repository-name: 'wallet-core-binaries-ios'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'WalletCore.xcframework'
-
-      - name: Create tag and release
-        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
-        with:
-          tag_name: ${{ needs.create_tag_and_release.outputs.publish_version }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-          make_latest: true
-          repository: 'tangem/wallet-core-binaries-ios'
-          target_commitish: 'test/IOS-6122_build_scripts' # TODO: remove since the default branch ('main') should be used as a target
+          commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.publish_version }})'
 
   upload_swift_protobuf_binaries_ios:
     name: Upload SwiftProtobuf binaries iOS
@@ -182,16 +176,7 @@ jobs:
           destination-repository-name: 'swift-protobuf-binaries'
           target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
           target-directory: 'SwiftProtobuf.xcframework'
-
-      - name: Create tag and release
-        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
-        with:
-          tag_name: ${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          generate_release_notes: true
-          make_latest: true
-          repository: 'tangem/swift-protobuf-binaries'
-          target_commitish: 'test/IOS-6122_build_scripts' # TODO: remove since the default branch ('main') should be used as a target
+          commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
 
   publish_android:
     name: Publish Android

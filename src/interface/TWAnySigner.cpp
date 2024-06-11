@@ -3,7 +3,12 @@
 // Copyright © 2017 Trust Wallet.
 
 #include <TrustWalletCore/TWAnySigner.h>
-#include <TrustWalletCore/TWAnySignerTangem.h>
+
+#if (defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))
+#include <functional>
+#else
+#include <TrustWalletCore/TWAnySignerTangem.h>  // Not used on iOS
+#endif  // (defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))
 
 #include "Coin.h"
 
