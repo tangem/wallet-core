@@ -4,11 +4,11 @@
 
 #include <TrustWalletCore/TWAnySigner.h>
 
-#if defined(IS_IOS)
+#if defined(IS_IOS_BINARIES)
 #include <functional>
 #else
-#include <TrustWalletCore/TWAnySignerTangem.h>  // Not used on iOS
-#endif  // defined(IS_IOS)
+#include <TrustWalletCore/TWAnySignerTangem.h>  // This header file is not used on iOS
+#endif  // defined(IS_IOS_BINARIES)
 
 #include "Coin.h"
 
