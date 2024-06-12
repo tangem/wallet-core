@@ -4,11 +4,11 @@
 
 #include <TrustWalletCore/TWAnySigner.h>
 
-#if (defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))
+#if defined(IS_IOS)
 #include <functional>
 #else
 #include <TrustWalletCore/TWAnySignerTangem.h>  // Not used on iOS
-#endif  // (defined(TARGET_OS_SIMULATOR) || defined(TARGET_OS_IPHONE))
+#endif  // defined(IS_IOS)
 
 #include "Coin.h"
 
