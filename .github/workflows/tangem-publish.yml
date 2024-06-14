@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'master'
-      - 'feature/IOS-6122_build_scripts' # TODO: remove
-      - 'test/IOS-6122_build_scripts' # TODO: remove
   workflow_dispatch:
 
 env:
@@ -46,7 +44,6 @@ jobs:
           echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
 
       - name: Create tag and release
-        if: false # temporarily disabled
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         with:
           name: ${{ steps.version.outputs.tangem }}
@@ -143,7 +140,7 @@ jobs:
           source-directory: 'output/WalletCore.xcframework'
           destination-github-username: 'tangem'
           destination-repository-name: 'wallet-core-binaries-ios'
-          target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+          target-branch: 'main'
           target-directory: 'WalletCore.xcframework'
           commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.publish_version }})'
 
@@ -172,7 +169,7 @@ jobs:
           source-directory: 'output/SwiftProtobuf.xcframework'
           destination-github-username: 'tangem'
           destination-repository-name: 'swift-protobuf-binaries'
-          target-branch: 'test/IOS-6122_build_scripts'  # TODO: change to 'main'
+          target-branch: 'main'
           target-directory: 'SwiftProtobuf.xcframework'
           commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
 
@@ -206,7 +203,6 @@ jobs:
         run: tools/generate-files android
 
       - name: Build and publish Android
-        if: false # temporarily disabled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
