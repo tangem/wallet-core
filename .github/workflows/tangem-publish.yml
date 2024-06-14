@@ -207,7 +207,6 @@ jobs:
         run: tools/generate-files android
 
       - name: Build and publish Android
-        if: false # temporarily disabled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
