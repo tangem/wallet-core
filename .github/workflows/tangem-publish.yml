@@ -1,5 +1,5 @@
 name: Tangem - Publish
-
+run-name: Publish new release with changes from commit '${{ github.event.head_commit.message }}' (${{ github.sha }})
 on:
   push:
     branches:
@@ -10,79 +10,203 @@ env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DVELOPMENT_ANDROID }}
 
 jobs:
-  publish:
-    name: Create tag and publish
-    runs-on: macos-13
+  create_tag_and_release:
+    name: Create tag and release
+    runs-on: macos-latest
+    outputs:
+      publish_version: ${{ steps.version.outputs.tangem }}
+      swift_protobuf_publish_version: ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}
+    concurrency:
+      group: ${{ github.ref }}_create_tag_and_release
+      cancel-in-progress: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '17'
+        uses: actions/checkout@v4
 
       - name: Read version.properties file
-        uses: BrycensRanch/read-properties-action@v1
+        uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
         id: version
         with:
           file: version.properties
           property: tangem
           default: 0.0.1-tangem1
 
-      - name: Echo version.properties
-        run: echo ${{ steps.version.outputs.tangem }}
+      - name: Read swift-protobuf-version.properties file
+        uses: BrycensRanch/read-properties-action@6b75d8ab70d5abeb5211f96b660c45c911732b6e  # v1.0.4
+        id: swift_protobuf_version
+        with:
+          file: swift-protobuf-version.properties
+          all: true
+
+      - name: Echo versions
+        run: |
+          echo 'Publishing WalletCore version ${{ steps.version.outputs.tangem }}'
+          echo 'Publishing SwiftProtobuf version ${{ steps.swift_protobuf_version.outputs.version_tag }}-${{ steps.swift_protobuf_version.outputs.tangem_suffix }}'
+
+      - name: Create tag and release
+        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
+        with:
+          name: ${{ steps.version.outputs.tangem }}
+          tag_name: ${{ steps.version.outputs.tangem }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+
+  publish_ios:
+    name: Publish iOS
+    runs-on: macos-latest
+    outputs:
+      should_update_swift_protobuf: ${{ env.SHOULD_UPDATE_SWIFT_PROTOBUF }}
+    concurrency:
+      group: ${{ github.ref }}_publish_ios
+      cancel-in-progress: true
+    needs: create_tag_and_release
+    steps:
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd  # v1.6.0
+        with:
+          xcode-version: '15.4'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
+          fetch-depth: 0
+
+      - name: Remove unused files
+        run: rm -rf include/TrustWalletCore/TWAnySignerTangem.h  # This header is not used on iOS and causes a compilation error
+
+      - name: Check if SwiftProtobuf binary must be updated
+        run: tools/check_if_swift_protobuf_should_be_updated "https://github.com/tangem/swift-protobuf-binaries.git" "${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }}"
+
+      - name: Install dependencies
+        uses: ./.github/actions/install_dependencies_composite_action
+
+      - name: Generate files
+        run: tools/generate-files ios
+
+      - name: Build XCFramework
+        run: tools/ios-xcframework
+
+      - name: Prepare artefacts
+        run: |
+          mkdir -p output/artefacts/wallet-core
+          mkdir -p output/artefacts/swift-protobuf
+          mv swift/build/WalletCore.xcframework output/artefacts/wallet-core/
+          mv swift/build/SwiftProtobuf.xcframework output/artefacts/swift-protobuf/
+
+      - name: Upload WalletCore artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wallet-core-binary-artefacts-${{ github.sha }}
+          path: output/artefacts/wallet-core/
+
+      - name: Upload SwiftProtobuf artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: swift-protobuf-binary-artefacts-${{ github.sha }}
+          path: output/artefacts/swift-protobuf/
+
+      - name: Upload DSYMs
+        env:
+          FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
+        run: |
+          # We don't want to have Firebase as a dependency, so we download and use the `upload-symbols` script manually
+          curl -fsSL https://raw.githubusercontent.com/firebase/firebase-ios-sdk/main/Crashlytics/upload-symbols -o upload-symbols
+          chmod +x upload-symbols
+          # The `upload-symbols` script indeed accepts a list of paths to upload, but using it in the foreach loop like this is just a dead-simple approach
+          find swift/build -type d -name "*.dSYM" -exec ./upload-symbols --platform ios --app-id $FB_IOS_APP_ID {} \;
+
+  upload_wallet_core_binaries_ios:
+    name: Upload WalletCore binaries iOS
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}_upload_wallet_core_binaries_ios
+      cancel-in-progress: true
+    needs: 
+      - publish_ios
+      - create_tag_and_release
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wallet-core-binary-artefacts-${{ github.sha }}
+          path: output
+
+      - name: Update wallet-core-binaries-ios repo
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
+        with:
+          source-directory: 'output/WalletCore.xcframework'
+          destination-github-username: 'tangem'
+          destination-repository-name: 'wallet-core-binaries-ios'
+          target-branch: 'main'
+          target-directory: 'WalletCore.xcframework'
+          commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.publish_version }})'
+
+  upload_swift_protobuf_binaries_ios:
+    name: Upload SwiftProtobuf binaries iOS
+    if: needs.publish_ios.outputs.should_update_swift_protobuf == 1
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.ref }}_upload_swift_protobuf_binaries_ios
+      cancel-in-progress: true
+    needs: 
+      - publish_ios
+      - create_tag_and_release
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: swift-protobuf-binary-artefacts-${{ github.sha }}
+          path: output
+
+      - name: Update swift-protobuf-binaries repo
+        uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
+        env:
+          SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
+        with:
+          source-directory: 'output/SwiftProtobuf.xcframework'
+          destination-github-username: 'tangem'
+          destination-repository-name: 'swift-protobuf-binaries'
+          target-branch: 'main'
+          target-directory: 'SwiftProtobuf.xcframework'
+          commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
+
+  publish_android:
+    name: Publish Android
+    runs-on: macos-13
+    concurrency:
+      group: ${{ github.ref }}_publish_android
+      cancel-in-progress: true
+    needs: create_tag_and_release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install_dependencies_composite_action
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '17'
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
 
-      - name: Install system dependencies
-        run: |
-          tools/install-sys-dependencies-mac
       - name: Install Android Dependencies
         run: tools/install-android-dependencies
-
-      - name: Cache Rust
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            rust
-      - name: Install Rust dependencies
-        run: |
-          tools/install-rust-dependencies
-
-      - name: Cache internal dependencies
-        id: internal_cache
-        uses: actions/cache@v3
-        with:
-          path: build/local
-          key: ${{ runner.os }}-${{ runner.arch }}-internal-${{ hashFiles('tools/install-dependencies') }}
-
-      - name: Install internal dependencies
-        run: tools/install-dependencies
-        if: steps.internal_cache.outputs.cache-hit != 'true'
-
-      - name: Create tag
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/${{ steps.version.outputs.tangem }}",
-              sha: context.sha
-            })
 
       - name: Generate files
         run: tools/generate-files android
 
-      - name: Build and publish
+      - name: Build and publish Android
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ secrets.GITHUB_ACTOR }}
         run: |
           cd android/
           echo sdk.dir = $ANDROID_HOME > local.properties
-          GITHUB_USER=${{ secrets.GITHUB_ACTOR }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./gradlew build assembleRelease publish -Pversion=${{ steps.version.outputs.tangem }}
+          GITHUB_USER=${{ secrets.GITHUB_ACTOR }} GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} ./gradlew build assembleRelease publish -Pversion=${{ needs.create_tag_and_release.outputs.publish_version }}
