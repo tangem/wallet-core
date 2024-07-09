@@ -1,0 +1,31 @@
+name: 'Install dependencies'
+runs:
+  using: "composite"
+  steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        tools/install-sys-dependencies-mac
+
+    - name: Cache internal dependencies
+      id: internal_cache
+      uses: actions/cache@v3
+      with:
+        path: build/local
+        key: ${{ runner.os }}-${{ runner.arch }}-internal-${{ hashFiles('tools/install-dependencies') }}
+
+    - name: Install internal dependencies
+      shell: bash
+      run: |
+        tools/install-dependencies
+
+    - name: Cache Rust dependencies
+      uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84  # v2.7.3
+      with:
+        workspaces: |
+          rust
+
+    - name: Install Rust dependencies
+      shell: bash
+      run: |
+        tools/install-rust-dependencies

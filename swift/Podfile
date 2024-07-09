@@ -9,6 +9,10 @@ project 'TrustWalletCore.xcodeproj'
 target 'WalletCore' do
   use_frameworks!
 
+  # 1. The SwiftProtobuf library version must match the version specified in the `swift-protobuf-version.properties` file 
+  #    (`version_tag` property in this file).
+  # 2. Before upgrading, make sure that the new version of the SwiftProtobuf library is compatible with other consumers
+  #    of the binary artifact (`grpc-swift`, `hedera-sdk-swift`, `SwiftBinanceChain`, `blockchain-sdk-swift` and so on).
   pod 'SwiftProtobuf', '=1.25.2'
 
   target 'WalletCoreTests'
