@@ -2,16 +2,19 @@
 
 set -e
 
-NIGHTLY="nightly-2024-02-09"
+NIGHTLY="nightly-2024-03-17"  # Latest 1.78 nightly
+STABLE="stable-2024-05-02"  # https://releases.rs/docs/1.78.0/
 
-rustup toolchain install $NIGHTLY
-rustup default $NIGHTLY
-rustup toolchain install $NIGHTLY-x86_64-apple-darwin --force-non-host
-rustup toolchain install $NIGHTLY-aarch64-apple-darwin --force-non-host
-rustup component add rust-src --toolchain $NIGHTLY-aarch64-apple-darwin
-rustup component add rust-src --toolchain $NIGHTLY-x86_64-apple-darwin
+RUST_RELEASE=$NIGHTLY
+
+rustup toolchain install $RUST_RELEASE
+rustup default $RUST_RELEASE
+rustup toolchain install $RUST_RELEASE-x86_64-apple-darwin --force-non-host
+rustup toolchain install $RUST_RELEASE-aarch64-apple-darwin --force-non-host
+rustup component add rust-src --toolchain $RUST_RELEASE-aarch64-apple-darwin
+rustup component add rust-src --toolchain $RUST_RELEASE-x86_64-apple-darwin
 if [[ `uname` == "Linux" ]]; then
-  rustup component add rust-src --toolchain $NIGHTLY-x86_64-unknown-linux-gnu
+  rustup component add rust-src --toolchain $RUST_RELEASE-x86_64-unknown-linux-gnu
 fi
 
 # Android
