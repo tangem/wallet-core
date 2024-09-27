@@ -1,0 +1,12 @@
+#!/bin/bash
+
+repo_url=$1
+repo_tag=$2
+
+if git ls-remote --tags $repo_url | grep -q "refs/tags/$repo_tag"; then
+    echo "Should update SwiftProtobuf: false"
+    echo "SHOULD_UPDATE_SWIFT_PROTOBUF=0" >> $GITHUB_ENV
+else
+    echo "Should update SwiftProtobuf: true"
+    echo "SHOULD_UPDATE_SWIFT_PROTOBUF=1" >> $GITHUB_ENV
+fi

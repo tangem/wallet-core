@@ -131,6 +131,14 @@ If you want to add support for a new blockchain also see [Adding Support for a N
 Thanks to all the people who contribute.
 <a href="https://github.com/trustwallet/wallet-core/graphs/contributors"><img src="https://opencollective.com/wallet-core/contributors.svg?width=890&button=false" /></a>
 
+# Contributing (Tangem specific)
+
+- Before opening a pull-request, bump **WalletCore** library version in the `./version.properties` file
+- [Optional] To update **SwiftProtobuf** library (only if necessary):
+	* Make sure that the new version of the **SwiftProtobuf** library is compatible with other consumers of a binary artifact (`grpc-swift`, `hedera-sdk-swift`, `SwiftBinanceChain`, `blockchain-sdk-swift`, and so on)
+	* Set a new version in the `./swift-protobuf-version.properties` file
+	* Set a new version in the `./swift/Podfile` file
+
 # Disclaimer
 
 The Wallet Core project is led and managed by Trust Wallet with a large contributor community and actively used in several projects.  Our goal at Wallet Core is to give other wallets an easy way to add chain support.

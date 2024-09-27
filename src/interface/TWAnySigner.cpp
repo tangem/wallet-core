@@ -3,7 +3,12 @@
 // Copyright © 2017 Trust Wallet.
 
 #include <TrustWalletCore/TWAnySigner.h>
-#include <TrustWalletCore/TWAnySignerTangem.h>
+
+#if defined(IS_IOS_BINARIES)
+#include <functional>
+#else
+#include <TrustWalletCore/TWAnySignerTangem.h>  // This header file is not used on iOS
+#endif  // defined(IS_IOS_BINARIES)
 
 #include "Coin.h"
 
