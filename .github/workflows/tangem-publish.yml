@@ -3,7 +3,7 @@ run-name: Publish new release with changes from commit '${{ github.event.head_co
 on:
   push:
     branches:
-      - 'master'
+      - 'test/IOS-6122_build_scripts_2' # temporary value
   workflow_dispatch:
 
 env:
@@ -45,6 +45,7 @@ jobs:
 
       - name: Create tag and release
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
+        if: False # temporarily disabled
         with:
           name: ${{ steps.version.outputs.tangem }}
           tag_name: ${{ steps.version.outputs.tangem }}
@@ -140,7 +141,7 @@ jobs:
           source-directory: 'output/WalletCore.xcframework'
           destination-github-username: 'tangem'
           destination-repository-name: 'wallet-core-binaries-ios'
-          target-branch: 'main'
+          target-branch: 'test/IOS-6122_build_scripts'
           target-directory: 'WalletCore.xcframework'
           commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.publish_version }})'
 
@@ -169,7 +170,7 @@ jobs:
           source-directory: 'output/SwiftProtobuf.xcframework'
           destination-github-username: 'tangem'
           destination-repository-name: 'swift-protobuf-binaries'
-          target-branch: 'main'
+          target-branch: 'test/IOS-6122_build_scripts'
           target-directory: 'SwiftProtobuf.xcframework'
           commit-message: 'Update from ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }} (${{ needs.create_tag_and_release.outputs.swift_protobuf_publish_version }})'
 
@@ -180,6 +181,7 @@ jobs:
       group: ${{ github.ref }}_publish_android
       cancel-in-progress: true
     needs: create_tag_and_release
+    if: False # temporarily disabled
     steps:
       - name: Checkout
         uses: actions/checkout@v4
