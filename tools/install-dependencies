@@ -76,7 +76,7 @@ function build_swift_plugin() {
     mkdir -p "$SWIFT_PROTOBUF_DIR"
     cd "$SWIFT_PROTOBUF_DIR"
     if [ ! -f $SWIFT_PROTOBUF_VERSION.tar.gz ]; then
-        curl -fSsOL https://github.com/apple/swift-protobuf/archive/$SWIFT_PROTOBUF_VERSION.tar.gz
+        curl -fSsOL https://github.com/apple/swift-protobuf/archive/refs/tags/$SWIFT_PROTOBUF_VERSION.tar.gz
     fi
     tar xzf $SWIFT_PROTOBUF_VERSION.tar.gz
 
