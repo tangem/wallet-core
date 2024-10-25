@@ -69,7 +69,7 @@ jobs:
           fetch-depth: 0
 
       - name: Select Xcode version (using `xcodes` utility) from the `.xcode-version` file
-        run: xcodes install --select
+        run: xcodes select
 
       - name: Remove unused files
         run: rm -rf include/TrustWalletCore/TWAnySignerTangem.h  # This header is not used on iOS and causes a compilation error
