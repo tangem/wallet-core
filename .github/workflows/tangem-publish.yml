@@ -51,6 +51,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tangem }}
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
+          prerelease: true  # TODO: Test only, remove
 
   publish_ios:
     name: Publish iOS
