@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'master'
-      - 'feature/IOS-8085_migrate_to_xcode_16_1'  # TODO: Test only, remove
   workflow_dispatch:
 
 env:
@@ -51,7 +50,6 @@ jobs:
           tag_name: ${{ steps.version.outputs.tangem }}
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
-          prerelease: true  # TODO: Test only, remove
 
   publish_ios:
     name: Publish iOS
@@ -107,7 +105,6 @@ jobs:
           path: output/artefacts/swift-protobuf/
 
       - name: Upload DSYMs
-        if: false # TODO: temp disabled, remove
         env:
           FB_IOS_APP_ID: ${{ secrets.FB_IOS_APP_ID_PROD }}
         run: |
@@ -134,7 +131,6 @@ jobs:
           path: output
 
       - name: Update wallet-core-binaries-ios repo
-        if: false # TODO: temp disabled, remove
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.WALLET_CORE_BINARIES_IOS_SSH_DEPLOY_KEY }}
@@ -164,7 +160,6 @@ jobs:
           path: output
 
       - name: Update swift-protobuf-binaries repo
-        if: false # TODO: temp disabled, remove
         uses: cpina/github-action-push-to-another-repository@07c4d7b3def0a8ebe788a8f2c843a4e1de4f6900 # v.1.7.2
         env:
           SSH_DEPLOY_KEY: ${{ secrets.SWIFT_PROTOBUF_BINARIES_SSH_DEPLOY_KEY }}
@@ -178,7 +173,6 @@ jobs:
 
   publish_android:
     name: Publish Android
-    if: false # TODO: temp disabled, remove
     runs-on: macos-13
     concurrency:
       group: ${{ github.ref }}_publish_android
