@@ -63,7 +63,7 @@ jobs:
     needs: create_tag_and_release
     steps:
       - name: Select Xcode version (using `xcodes` utility) from the `.xcode-version` file
-        run: xcodes select
+        run: xcodes install --select
 
       - name: Checkout
         uses: actions/checkout@v4
