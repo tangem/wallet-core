@@ -62,14 +62,14 @@ jobs:
       cancel-in-progress: true
     needs: create_tag_and_release
     steps:
-      - name: Select Xcode version (using `xcodes` utility) from the `.xcode-version` file
-        run: xcodes install --select
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-tags: true  # Required otherwise git can't describe the repo; Doesn't actually work w/o 'fetch-depth', see https://github.com/actions/checkout/issues/1471
           fetch-depth: 0
+
+      - name: Select Xcode version (using `xcodes` utility) from the `.xcode-version` file
+        run: xcodes install --select
 
       - name: Remove unused files
         run: rm -rf include/TrustWalletCore/TWAnySignerTangem.h  # This header is not used on iOS and causes a compilation error
