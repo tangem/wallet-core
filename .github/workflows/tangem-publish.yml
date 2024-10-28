@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'master'
-      - 'feature/IOS-8085_migrate_to_xcode_16_1'  # TODO: Test only, remove
+      - 'test/IOS-8085_migrate_to_xcode_16_1'  # TODO: Test only, remove
   workflow_dispatch:
 
 env:
