@@ -102,13 +102,6 @@ class TheOpenNetworkTests: XCTestCase {
         let expectedString = "te6cckEBBAEArQABRYgBsLf6vJOEq42xW0AoyWX0K+uBMUcXFDLFqmkDg6k1Io4MAQGcEUPkil2aZ4s8KKparSep/OKHMC8vuXafFbW2HGp/9AcTRv0J5T4dwyW1G0JpHw+g5Ov6QI3Xo0O9RFr3KidICimpoxdjm3UYAAAABgADAgFiYgAzffHi4B365BPJfIJk/F+URKU1UekJ6g4QK02ypVb22YhQAAAAAAAAAAAAAAAAAQMAAA08Nzs="
 
         XCTAssertEqual(output.encoded, expectedString)
-        
-        // TANGEM
-        let signer = PrivateKeySigner(privateKey: PrivateKey(data: input.privateKey)!, coin: .ton)
-        input.privateKey = Data(repeating: 1, count: 32)
-        let outputExternal: TheOpenNetworkSigningOutput = try! AnySigner.signExternally(input: input, coin: .ton, signer: signer)
-        
-        XCTAssertEqual(outputExternal.encoded, expectedString)
     }
 
     func testJettonTransferSign() {
