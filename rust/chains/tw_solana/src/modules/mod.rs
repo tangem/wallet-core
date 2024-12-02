@@ -8,10 +8,14 @@ use tw_keypair::ed25519;
 
 pub mod compiled_instructions;
 pub mod compiled_keys;
+pub mod insert_instruction;
 pub mod instruction_builder;
 pub mod message_builder;
+pub mod message_decompiler;
+pub mod offchain_message_signer;
 pub mod proto_builder;
 pub mod transaction_decoder;
+pub mod transaction_util;
 pub mod tx_signer;
 pub mod utils;
 pub mod wallet_connect;

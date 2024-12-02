@@ -12,8 +12,10 @@ use zeroize::DefaultIsZeroes;
 
 pub type H32 = Hash<4>;
 pub type H160 = Hash<20>;
+pub type H192 = Hash<24>;
 pub type H256 = Hash<32>;
 pub type H264 = Hash<33>;
+pub type H288 = Hash<36>;
 pub type H512 = Hash<64>;
 pub type H520 = Hash<65>;
 
@@ -84,11 +86,17 @@ impl<const N: usize> Hash<N> {
     pub fn is_zero(&self) -> bool {
         self.0.iter().all(|byte| *byte == 0)
     }
+
+    /// Reverses the order of elements in the inner data, in place.
+    pub fn rev(mut self) -> Self {
+        self.0.reverse();
+        self
+    }
 }
 
 /// This is a [`Hash::split`] helper that ensures that `L + R == N` at compile time.
 /// Assertion example:
-/// ```rust(ignore)
+/// ```ignore
 /// let hash = H256::default();
 /// let (left, right): (H128, H160) = hash.split();
 ///

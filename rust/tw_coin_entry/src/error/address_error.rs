@@ -11,6 +11,7 @@ pub enum AddressError {
     MissingPrefix,
     FromHexError,
     FromBase58Error,
+    FromBase64Error,
     FromBech32Error,
     PublicKeyTypeMismatch,
     UnexpectedAddressPrefix,
@@ -19,5 +20,6 @@ pub enum AddressError {
     InvalidRegistry,
     InvalidInput,
     InvalidChecksum,
+    InvalidWitnessProgram,
     Internal,
 }
