@@ -1,4 +1,3 @@
-#include <TrustWalletCore/TWAnySignerTangem.h>
 #include "TWJNI.h"
 #include "AnySigner.h"
 
