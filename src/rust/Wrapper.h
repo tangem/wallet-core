@@ -21,6 +21,10 @@ inline std::shared_ptr<TWPublicKey> wrapTWPublicKey(TWPublicKey* publicKey) {
 }
 
 struct TWDataVectorWrapper {
+    TWDataVectorWrapper():
+        ptr(std::shared_ptr<TWDataVector>(tw_data_vector_create(), Rust::tw_data_vector_delete)) {
+    }
+
     /// Implicit constructor.
     TWDataVectorWrapper(const std::vector<Data>& vec) {
         ptr = std::shared_ptr<TWDataVector>(tw_data_vector_create(), Rust::tw_data_vector_delete);
@@ -33,6 +37,12 @@ struct TWDataVectorWrapper {
     }
 
     ~TWDataVectorWrapper() = default;
+
+    void push(const Data& item) {
+        auto* itemData = tw_data_create_with_bytes(item.data(), item.size());
+        Rust::tw_data_vector_add(ptr.get(), itemData);
+        Rust::tw_data_delete(itemData);
+    }
 
     TWDataVector* get() const {
         return ptr.get();
@@ -153,6 +163,20 @@ struct CStringWrapper {
     std::string str;
 };
 
+struct CUInt8Wrapper {
+    /// Implicit move constructor.
+    CUInt8Wrapper(uint8_t c_u8) {
+        *this = c_u8;
+    }
+
+    CUInt8Wrapper& operator=(uint8_t c_u8) {
+        value = c_u8;
+        return *this;
+    }
+
+    uint8_t value;
+};
+
 struct CUInt64Wrapper {
     /// Implicit move constructor.
     CUInt64Wrapper(uint64_t c_u64) {
@@ -214,6 +238,7 @@ private:
 };
 
 using CByteArrayResultWrapper = CResult<CByteArrayWrapper>;
+using CUInt8ResultWrapper = CResult<CUInt8Wrapper>;
 using CUInt64ResultWrapper = CResult<CUInt64Wrapper>;
 
 } // namespace TW::Rust

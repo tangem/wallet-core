@@ -4,8 +4,8 @@
 
 //! Transactions can be:
 //! - Non-typed (legacy, pre-EIP2718) transactions:
-//!  -- simple ETH transfer
-//!  -- others with payload, function call, e.g. ERC20 transfer
+//!   - simple ETH transfer
+//!   - others with payload, function call, e.g. ERC20 transfer
 //! - Typed transactions (enveloped, EIP2718), with specific type and transaction payload
 //! - User operations (EIP4337)
 
@@ -16,6 +16,7 @@ use tw_keypair::ecdsa::secp256k1;
 use tw_memory::Data;
 use tw_number::U256;
 
+pub mod access_list;
 pub mod signature;
 pub mod transaction_eip1559;
 pub mod transaction_non_typed;

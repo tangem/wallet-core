@@ -12,15 +12,18 @@ pub enum BlockchainType {
     Aptos,
     Binance,
     Bitcoin,
+    BitcoinCash,
     Cosmos,
     Ethereum,
     Greenfield,
     InternetComputer,
     NativeEvmos,
     NativeInjective,
+    Pactus,
     Ronin,
     Solana,
     Sui,
+    TheOpenNetwork,
     Thorchain,
     // end_of_blockchain_type - USED TO GENERATE CODE
     #[serde(other)]

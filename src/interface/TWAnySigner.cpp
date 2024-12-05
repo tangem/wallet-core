@@ -4,12 +4,6 @@
 
 #include <TrustWalletCore/TWAnySigner.h>
 
-#if defined(IS_IOS_BINARIES)
-#include <functional>
-#else
-#include <TrustWalletCore/TWAnySignerTangem.h>  // This header file is not used on iOS
-#endif  // defined(IS_IOS_BINARIES)
-
 #include "Coin.h"
 
 using namespace TW;
@@ -19,27 +13,6 @@ TWData* _Nonnull TWAnySignerSign(TWData* _Nonnull data, enum TWCoinType coin) {
     Data dataOut;
     TW::anyCoinSign(coin, dataIn, dataOut);
     return TWDataCreateWithBytes(dataOut.data(), dataOut.size());
-}
-
-// TANGEM
-TWData* _Nonnull TWAnySignerSignExternally(TWData* _Nonnull data, enum TWCoinType coin, TWData *_Nonnull publicKey, std::function<const TWData *_Nonnull(const TWData *_Nonnull)> externalSigner) {
-    // Just a conversion between TWData and TW::Data
-    auto dataExternalSigner = [externalSigner](Data dataToSign) -> Data {
-        const TWData* twDataToSign = TWDataCreateWithBytes(dataToSign.data(), dataToSign.size());
-        const TWData* twDataSigned = externalSigner(twDataToSign);
-
-        const Data& dataSigned = *(reinterpret_cast<const Data*>(twDataSigned));
-        return dataSigned;
-    };
-    const Data& publicKeyData = *(reinterpret_cast<const Data*>(publicKey));
-    const Data& dataIn = *(reinterpret_cast<const Data*>(data));
-    Data dataOut;
-    TW::anyCoinSignExternally(coin, dataIn, dataOut, publicKeyData, dataExternalSigner);
-    return TWDataCreateWithBytes(dataOut.data(), dataOut.size());
-}
-
-TWData* _Nonnull TWAnySignerSignExternally(TWData* _Nonnull data, enum TWCoinType coin, TWData *_Nonnull publicKey, TWData* (*externalSigner)(TWData*)) {
-    return TWAnySignerSignExternally(data, coin, publicKey, std::function(externalSigner));
 }
 
 TWString *_Nonnull TWAnySignerSignJSON(TWString *_Nonnull json, TWData *_Nonnull key, enum TWCoinType coin) {
