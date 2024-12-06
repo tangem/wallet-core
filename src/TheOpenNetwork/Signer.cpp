@@ -41,11 +41,18 @@ Data Signer::createJettonTransferMessage(std::shared_ptr<Wallet> wallet, const P
 // TANGEM
 Data Signer::createJettonTransferMessage(std::shared_ptr<Wallet> wallet, const PrivateKey& privateKey, const Proto::JettonTransfer& jettonTransfer, const std::function<Data(Data)> externalSigner) {
     const Proto::Transfer& transferData = jettonTransfer.transfer();
-    
+
+    std::string bytes = jettonTransfer.jetton_amount();
+    uint128_t jetton_amount = 0;
+    for (size_t i = 0; i < bytes.size(); ++i) {
+        jetton_amount <<= 8;
+        jetton_amount |= static_cast<uint8_t>(bytes[i]);
+    }
+
     const auto payload = jettonTransferPayload(
         Address(jettonTransfer.response_address()),
         Address(jettonTransfer.to_owner()),
-        jettonTransfer.jetton_amount(),
+        jetton_amount,
         jettonTransfer.forward_amount(),
         transferData.comment(),
         jettonTransfer.query_id()

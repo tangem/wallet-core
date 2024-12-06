@@ -183,8 +183,8 @@ TEST(TheOpenNetworkSigner, JettonTransfer) {
     jettonTransfer.set_to_owner("EQAFwMs5ha8OgZ9M4hQr80z9NkE7rGxUpE1hCFndiY6JnDx8");
     jettonTransfer.set_query_id(69);
     jettonTransfer.set_forward_amount(1);
-    jettonTransfer.set_jetton_amount(1000 * 1000 * 1000); // transfer 1 testtwt (decimal precision is 9)
-
+    auto jetton = parse_hex("3B9ACA00"); // transfer 1 testtwt (decimal precision is 9) 1000 * 1000 * 1000
+    jettonTransfer.set_jetton_amount(jetton.data(), jetton.size());
     const auto privateKey = parse_hex("c054900a527538c1b4325688a421c0469b171c29f23a62da216e90b0df2412ee");
     input.set_private_key(privateKey.data(), privateKey.size());
 
@@ -209,7 +209,8 @@ TEST(TheOpenNetworkSigner, JettonTransferComment) {
     transferData.set_expire_at(1787693046);
     transferData.set_comment("test comment");
     transferData.set_bounceable(true);
-    jettonTransfer.set_jetton_amount(500 * 1000 * 1000); // transfer 0.5 testtwt (decimal precision is 9)
+    auto jetton = parse_hex("1DCD6500");
+    jettonTransfer.set_jetton_amount(jetton.data(), jetton.size()); // transfer 0.5 testtwt (decimal precision is 9) 500 * 1000 * 1000
     jettonTransfer.set_to_owner("EQAFwMs5ha8OgZ9M4hQr80z9NkE7rGxUpE1hCFndiY6JnDx8");
     jettonTransfer.set_response_address("EQBaKIMq5Am2p_rfR1IFTwsNWHxBkOpLTmwUain5Fj4llTXk"); // send unused toncoins back to sender
     jettonTransfer.set_forward_amount(1);

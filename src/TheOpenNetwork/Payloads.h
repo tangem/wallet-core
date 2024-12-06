@@ -10,7 +10,7 @@ namespace TW::TheOpenNetwork {
     TW::CommonTON::Cell::Ref jettonTransferPayload(
         const Address& responseAddress,
         const Address& toOwner,
-        uint64_t jettonAmount,
+        uint128_t jettonAmount,
         uint64_t forwardAmount,
         const std::string& comment,
         uint64_t query_id);

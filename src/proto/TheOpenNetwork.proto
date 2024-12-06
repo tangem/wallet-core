@@ -54,14 +54,14 @@ message Transfer {
 }
 
 message JettonTransfer {
-    // Dest in Transfer means contract address of sender's jetton wallet. 
+    // Dest in Transfer means contract address of sender's jetton wallet.
     Transfer transfer = 1;
 
     // Arbitrary request number. Deafult is 0. Optional field.
     uint64 query_id = 2;
 
     // Amount of transferred jettons in elementary integer units. The real value transferred is jetton_amount multiplied by ten to the power of token decimal precision
-    uint64 jetton_amount = 3;
+    bytes jetton_amount = 3;
 
     // Address of the new owner of the jettons.
     string to_owner = 4;
