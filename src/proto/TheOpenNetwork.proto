@@ -61,7 +61,7 @@ message JettonTransfer {
     uint64 query_id = 1;
 
     // Amount of transferred jettons in elementary integer units. The real value transferred is jetton_amount multiplied by ten to the power of token decimal precision
-    uint64 jetton_amount = 2;
+    bytes jetton_amount = 2;
 
     // Address of the new owner of the jettons.
     string to_owner = 3;
