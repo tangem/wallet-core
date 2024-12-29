@@ -141,9 +141,13 @@ impl SigningRequestBuilder {
             Some(input.custom_payload.to_string())
         };
 
+        let jetton_amount = U256::from_big_endian_slice(&input.jetton_amount)
+            .into_tw()
+            .context("Invalid jetton_amount")?;
+
         let jetton_payload = JettonTransferRequest {
             query_id: input.query_id,
-            jetton_amount: U256::from(input.jetton_amount),
+            jetton_amount: jetton_amount,
             dest,
             response_address,
             custom_payload,
