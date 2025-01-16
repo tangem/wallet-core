@@ -28,6 +28,21 @@ Data TransactionCompiler::compileWithSignatures(TWCoinType coinType, const Data&
     return txOutput;
 }
 
+Data TransactionCompiler::compileWithMultipleSignatures(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<Data>& publicKeys) {
+    std::vector<PublicKey> pubs;
+    const auto publicKeyType = ::publicKeyType(coinType);
+    for (auto& p: publicKeys) {
+        if (!PublicKey::isValid(p, publicKeyType)) {
+            throw std::invalid_argument("Invalid public key");
+        }
+        pubs.push_back(PublicKey(p, publicKeyType));
+    }
+
+    Data txOutput;
+    tangemAnyCoinCompileWithSignatures(coinType, txInputData, signatures, pubs, txOutput);
+    return txOutput;
+}
+
 Data TransactionCompiler::compileWithSignaturesAndPubKeyType(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<Data>& publicKeys, enum TWPublicKeyType pubKeyType) {
     std::vector<PublicKey> pubs;
     for (auto& p: publicKeys) {
@@ -36,7 +51,7 @@ Data TransactionCompiler::compileWithSignaturesAndPubKeyType(TWCoinType coinType
         }
         pubs.push_back(PublicKey(p, pubKeyType));
     }
-
+    
     Data txOutput;
     anyCoinCompileWithSignatures(coinType, txInputData, signatures, pubs, txOutput);
     return txOutput;

@@ -20,6 +20,8 @@ public:
 
     Data preImageHashes(TWCoinType coin, const Data& txInputData) const;
     void compile(TWCoinType coin, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& dataOut) const;
+    void compileWithMultipleSignatures(TWCoinType coin, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& dataOut) const;
+
 };
 
 } // namespace TW::Cardano

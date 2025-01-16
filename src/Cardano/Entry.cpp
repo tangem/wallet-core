@@ -60,4 +60,32 @@ void Entry::compile([[maybe_unused]] TWCoinType coin, const Data& txInputData, c
         });
 }
 
+void Entry::compileWithMultipleSignatures([[maybe_unused]] TWCoinType coin, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& dataOut) const {
+    auto input = Proto::SigningInput();
+    auto output = Proto::SigningOutput();
+
+    if (!input.ParseFromArray(txInputData.data(), (int)txInputData.size())) {
+        output.set_error(Common::Proto::Error_input_parse);
+        output.set_error_message("failed to parse input data");
+        dataOut = TW::data(output.SerializeAsString());
+        return;
+    } 
+
+    if (signatures.empty() || publicKeys.empty()) {
+        output.set_error(Common::Proto::Error_invalid_params);
+        output.set_error_message("empty signatures or publickeys");
+        dataOut = TW::data(output.SerializeAsString());
+        return;
+    }
+
+    try {
+        auto encoded = Signer::encodeTransactionWithSignatures(input, publicKeys, signatures);
+        output.set_encoded(encoded.data(), encoded.size());
+    } catch (const std::exception& e) {
+        output.set_error(Common::Proto::Error_internal);
+        output.set_error_message(e.what());
+    }
+    dataOut = TW::data(output.SerializeAsString());
+}
+
 } // namespace TW::Cardano

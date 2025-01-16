@@ -614,6 +614,60 @@ Data Signer::encodeTransactionWithSig(const Proto::SigningInput &input, const Pu
     return cbor.encoded();
 }
 
+Data Signer::encodeTransactionWithSignatures(
+    const Proto::SigningInput &input, 
+    const std::vector<PublicKey>& publicKeys, 
+    const std::vector<Data>& signatures
+    ) {
+    Transaction txAux;
+    auto buildRet = buildTx(txAux, input);
+    if (buildRet != Common::Proto::OK) {
+        throw Common::Proto::SigningError(buildRet);
+    }
+
+    std::vector<std::pair<Data, Data>> keySignaturesPairs = convertToKeySignaturePairs(publicKeys, signatures);
+
+    bool hasLegacyUtxos = false;
+    for (const auto& utxo : input.utxos()) {
+        if (AddressV2::isValid(utxo.address())) {
+            hasLegacyUtxos = true;
+            break;
+        }
+    }
+
+    const auto sigsCbor = cborizeSignatures(keySignaturesPairs, hasLegacyUtxos);
+
+    // Cbor-encode txAux & signatures
+    const auto cbor = Cbor::Encode::array({
+        // txaux
+        Cbor::Encode::fromRaw(txAux.encode()),
+        // signatures
+        sigsCbor,
+        // aux data
+        Cbor::Encode::null(),
+    });
+
+    return cbor.encoded();
+}
+
+std::vector<std::pair<Data, Data>> Signer::convertToKeySignaturePairs(const std::vector<PublicKey>& keys, const std::vector<Data>& signatures) {
+    // Check if the two vectors are of the same size
+    if (keys.size() != signatures.size()) {
+        throw std::invalid_argument("Vectors must be of the same size.");
+    }
+
+    std::vector<std::pair<Data, Data>> result;
+    result.reserve(keys.size()); // Reserve space to avoid reallocations
+
+    // Iterate over the vectors and create pairs
+    for (size_t i = 0; i < keys.size(); ++i) {
+        result.emplace_back(keys[i].bytes, signatures[i]);
+    }
+
+    return result;
+}
+
+
 Common::Proto::SigningError Signer::buildTx(Transaction& tx, const Proto::SigningInput& input) {
     auto plan = Signer(input).doPlan();
     return buildTransactionAux(tx, input, plan);

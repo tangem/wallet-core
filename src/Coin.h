@@ -124,6 +124,9 @@ Data anyCoinPreImageHashes(TWCoinType coinType, const Data& txInputData);
 
 void anyCoinCompileWithSignatures(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& txOutputOut);
 
+void tangemAnyCoinCompileWithSignatures(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& txOutputOut);
+
+
 // Describes a derivation: path + optional format + optional name
 struct Derivation {
     TWDerivation name = TWDerivationDefault;

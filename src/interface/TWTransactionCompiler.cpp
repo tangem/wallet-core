@@ -37,6 +37,21 @@ TWData *_Nonnull TWTransactionCompilerCompileWithSignatures(enum TWCoinType coin
     return TWDataCreateWithBytes(result.data(), result.size());
 }
 
+TWData *_Nonnull TWTransactionCompilerCompileWithMultipleSignatures(enum TWCoinType coinType, TWData *_Nonnull txInputData, const struct TWDataVector *_Nonnull signatures, const struct TWDataVector *_Nonnull publicKeys) {
+    Data result;
+    try {
+        assert(txInputData != nullptr);
+        const Data inputData = data(TWDataBytes(txInputData), TWDataSize(txInputData));
+        assert(signatures != nullptr);
+        const auto signaturesVec = createFromTWDataVector(signatures);
+        assert(publicKeys != nullptr);
+        const auto publicKeysVec = createFromTWDataVector(publicKeys);
+
+        result  = TransactionCompiler::compileWithMultipleSignatures(coinType, inputData, signaturesVec, publicKeysVec);
+    } catch (...) {} // return empty
+    return TWDataCreateWithBytes(result.data(), result.size());
+}
+
 TWData *_Nonnull TWTransactionCompilerCompileWithSignaturesAndPubKeyType(enum TWCoinType coinType, TWData *_Nonnull txInputData, const struct TWDataVector *_Nonnull signatures, const struct TWDataVector *_Nonnull publicKeys, enum TWPublicKeyType pubKeyType) {
     Data result;
     try {
@@ -51,3 +66,4 @@ TWData *_Nonnull TWTransactionCompilerCompileWithSignaturesAndPubKeyType(enum TW
     } catch (...) {} // return empty
     return TWDataCreateWithBytes(result.data(), result.size());
 }
+
