@@ -51,7 +51,7 @@ Data TransactionCompiler::compileWithSignaturesAndPubKeyType(TWCoinType coinType
         }
         pubs.push_back(PublicKey(p, pubKeyType));
     }
-    
+
     Data txOutput;
     anyCoinCompileWithSignatures(coinType, txInputData, signatures, pubs, txOutput);
     return txOutput;
