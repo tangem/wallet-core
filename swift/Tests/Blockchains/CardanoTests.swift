@@ -401,7 +401,6 @@ class CardanoTests: XCTestCase {
         signatures.add(data: stakingSignature)
 
         let publicKeys = DataVector()
-        // WalletCore used here `.ed25519Cardano` curve with 128 bytes publicKey.
         
         publicKeys.add(data: publicKey.data)
         publicKeys.add(data: stakingPublicKey.data)

@@ -39,7 +39,7 @@ Data TransactionCompiler::compileWithMultipleSignatures(TWCoinType coinType, con
     }
 
     Data txOutput;
-    tangemAnyCoinCompileWithSignatures(coinType, txInputData, signatures, pubs, txOutput);
+    anyCoinCompileWithMultipleSignatures(coinType, txInputData, signatures, pubs, txOutput);
     return txOutput;
 }
 

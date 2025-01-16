@@ -336,7 +336,7 @@ void TW::anyCoinCompileWithSignatures(TWCoinType coinType, const Data& txInputDa
     dispatcher->compile(coinType, txInputData, signatures, publicKeys, txOutputOut);
 }
 
-void TW::tangemAnyCoinCompileWithSignatures(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& txOutputOut) {
+void TW::anyCoinCompileWithMultipleSignatures(TWCoinType coinType, const Data& txInputData, const std::vector<Data>& signatures, const std::vector<PublicKey>& publicKeys, Data& txOutputOut) {
     auto* dispatcher = coinDispatcher(coinType);
     assert(dispatcher != nullptr);
     dispatcher->compileWithMultipleSignatures(coinType, txInputData, signatures, publicKeys, txOutputOut);

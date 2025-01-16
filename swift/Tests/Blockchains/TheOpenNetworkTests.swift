@@ -108,7 +108,7 @@ class TheOpenNetworkTests: XCTestCase {
         let privateKeyData = Data(hexString: "c054900a527538c1b4325688a421c0469b171c29f23a62da216e90b0df2412ee")!
         
         let jettonTransfer = TheOpenNetworkJettonTransfer.with {
-            $0.jettonAmount = 500 * 1000 * 1000
+            $0.jettonAmount = Data(hexString: "1dcd6500")! // 500 * 1000 * 1000
             $0.toOwner = "EQAFwMs5ha8OgZ9M4hQr80z9NkE7rGxUpE1hCFndiY6JnDx8"
             $0.responseAddress = "EQBaKIMq5Am2p_rfR1IFTwsNWHxBkOpLTmwUain5Fj4llTXk"
             $0.forwardAmount = 1
